@@ -22,7 +22,7 @@ def remove_too_big_area():
 
 
 def remove_incorrect_ceiling_height():
-    database_connect.cursor().execute("""DELETE FROM apartment_info WHERE  CeilingHeight > 5""")
+    database_connect.cursor().execute("""DELETE FROM apartment_info WHERE CeilingHeight > 5""")
     database_connect.commit()
 
 
@@ -53,17 +53,17 @@ def fill_all_absent_data():
                 apartment_data_frame[column_name][row] = 'unknown'
 
             elif column_name == 'Balconies' and pd.isna(apartment_data_frame[column_name][row]):
-                apartment_data_frame[column_name][row] = 0
+                apartment_data_frame[column_name][row] = 0.0
 
             elif column_name == 'CeilingHeight' and pd.isna(apartment_data_frame[column_name][row]) \
                     or apartment_data_frame[column_name][row] == 'h' or apartment_data_frame[column_name][row] == 'N':
-                apartment_data_frame[column_name][row] = 2.75
+                apartment_data_frame[column_name][row] = float(2.75)
 
             elif column_name == 'Floor' and pd.isna(apartment_data_frame[column_name][row]):
-                apartment_data_frame[column_name][row] = '0'
+                apartment_data_frame[column_name][row] = 0.0
 
             elif column_name == 'Floors' and pd.isna(apartment_data_frame[column_name][row]):
-                apartment_data_frame[column_name][row] = '0'
+                apartment_data_frame[column_name][row] = 0.0
 
             elif column_name == 'DistanceToCenter' and pd.isna(apartment_data_frame[column_name][row]):
                 apartment_data_frame[column_name][row] = 0.0

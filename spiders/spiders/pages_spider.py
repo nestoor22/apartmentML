@@ -2,7 +2,7 @@ import scrapy
 
 
 class PageSpider(scrapy.Spider):
-    name = "apartment"
+    name = "apartment_links"
 
     def start_requests(self):
         urls = [

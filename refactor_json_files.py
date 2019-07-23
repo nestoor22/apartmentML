@@ -88,6 +88,9 @@ def create_json_for_db():
             elif key == 'Адреса':
                 result_dict[translate_dict[key]] = info_dt[key]
 
+            elif key == 'Висота стелі':
+                result_dict[translate_dict[key]] = info_dt[key].replace('h', '').replace('N', '').replace(' ', '').replace('/','')
+
             else:
                 if info_dt[key] not in cashed and key in translate_dict:
                     try:
