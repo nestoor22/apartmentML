@@ -1,5 +1,4 @@
 
-
 def start_scrapping():
     from scrap_data import run_spiders as collect_data
     collect_data()
@@ -20,6 +19,19 @@ def prepare_data():
     create_better_db()
 
 
+def save_trained_model():
+    from ml_system import run_training_and_save_apartment_price_model as create_model
+    create_model()
+
+
+start_scrapping()
+
+insert_data_to_json()
+
 create_sql_database()
 
 prepare_data()
+
+save_trained_model()
+
+

@@ -84,6 +84,7 @@ def split_data_and_train_model(dataset, train_s, test_s):
 
     res = pd.concat([X_test_numeric_df, X_test_string_df], axis=1)
     res.to_excel('result.xlsx')
-    print(res['Cost'])
 
-split_data_and_train_model(original_dataset, 0.8, 0.2)
+
+def run_training_and_save_apartment_price_model():
+    split_data_and_train_model(original_dataset, 0.8, 0.2)
