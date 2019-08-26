@@ -6,7 +6,7 @@ import gmaps
 
 list_of_links = json.load(open('info.json'))
 
-api = gmaps.Directions(api_key='AIzaSyCs6bbRbEjmCbKnihNcL5jxQeZ0-D9mj4c')
+api = gmaps.Directions(api_key='')   # Your api here
 
 translate_dict = {'Ціна': 'Cost', 'Ціна $': 'Cost $', 'Адреса': 'Address', 'Кімнат': 'Rooms', 'Поверх': 'Floor',
                   'Житлова площа': 'LivingArea', 'Загальна площа': 'Area', 'Площа кухні': 'KitchenArea',

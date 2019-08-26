@@ -15,7 +15,7 @@ def create_sql_database():
 
 
 def prepare_data():
-    from work_with_data import fill_all_absent_data as create_better_db
+    from work_with_data import fill_absent_data_and_remove_incorrect as create_better_db
     create_better_db()
 
 
@@ -23,6 +23,11 @@ def save_trained_model():
     from ml_system import run_training_and_save_apartment_price_model as create_model
     create_model()
 
+
+def work_with_data():
+    from work_with_data import change_building_types, fill_absent_data_and_remove_incorrect
+    fill_absent_data_and_remove_incorrect()
+    change_building_types()
 
 start_scrapping()
 

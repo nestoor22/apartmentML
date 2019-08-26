@@ -26,7 +26,7 @@ def remove_incorrect_ceiling_height():
     database_connect.commit()
 
 
-def fill_all_absent_data():
+def fill_absent_data_and_remove_incorrect():
 
     for column_name in apartment_data_frame:
         for row in range(number_of_rows):
