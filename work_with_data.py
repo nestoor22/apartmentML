@@ -124,7 +124,14 @@ def plot_build_type_and_cost():
     plt.show()
 
 
+def change_building_types():
+    database_connect.cursor().execute("""UPDATE apartment_info SET BuildingType = 'House'
+     WHERE BuildingType='Mansion' OR BuildingType='Cottage' OR BuildingType='House in a cottage town' 
+     OR BuildingType='Townhouse'""")
+    database_connect.commit()
+
 if __name__ == '__main__':
     # print(pd.isna(apartment_data_frame[['Cost','LivingArea']][:2]))
     # fill_all_absent_data()
-    plot_build_type_and_cost()
+    # plot_build_type_and_cost()
+    change_building_types()
