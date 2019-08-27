@@ -66,20 +66,17 @@ def create_list_of_dicts():
 def create_json_for_db():
     json_for_db = []
     list_of_dicts = create_list_of_dicts()
-    print(list_of_dicts)
+
     for info_dt in list_of_dicts:
         result_dict = {}
         keys = [key for key in info_dt.keys() if key not in useless_keys]
 
         for key in keys:
             if 'грн/м' in info_dt[key]:
-                result_dict['SquareMeterCost'] = float(info_dt['Ціна $'].replace('$', '').replace(' ', ''))
                 result_dict['Cost'] = int(info_dt['Ціна $'].replace('$', '').replace(' ', '')) * \
                                       int(float(info_dt['Загальна площа']))
 
             elif key == 'Ціна':
-                result_dict['SquareMeterCost'] = int(info_dt['Ціна $'].replace('$', '').replace(' ', '')) // \
-                                                 int(float(info_dt['Загальна площа']))
                 result_dict['Cost'] = int(info_dt['Ціна $'].replace('$', '').replace(' ', ''))
 
             elif key == 'Ціна $':
@@ -103,9 +100,10 @@ def create_json_for_db():
                         cashed[info_dt[key]] = mtranslate.translate(info_dt[key], 'en').replace('\xa0', '')
                 elif key in translate_dict:
                     result_dict[translate_dict[key]] = cashed[info_dt[key]]
-                print(result_dict)
+                print('One')
 
         json_for_db.append(result_dict)
+        print('Appended to result')
 
     result = []
 
@@ -117,10 +115,11 @@ def create_json_for_db():
                 try:
                     info_dt['DistanceToCenter'] = float(api.directions(info_dt[key], 'Львів Оперний театр')[0]['legs']
                                                         [0]['distance']['text'].replace(' km', ''))
-
                     info_dt.pop(key)
+                    print('Get distance')
 
                 except Exception:
+                    print('Distance error')
                     info_dt['DistanceToCenter'] = 0.0
                     info_dt.pop(key)
                     continue
@@ -133,3 +132,4 @@ def create_json_for_db():
 
     os.remove('info.json')
     os.remove('pages_link.json')
+    return 1

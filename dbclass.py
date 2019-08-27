@@ -8,7 +8,6 @@ class ApartmentsDB:
 
     def __init__(self):
         self.Address         = None
-        self.SquareMeterCost = None
         self.Cost            = None
         self.Area            = None
         self.Rooms           = None

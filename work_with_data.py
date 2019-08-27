@@ -38,11 +38,6 @@ def fill_absent_data_and_remove_incorrect():
                 apartment_data_frame[column_name][row] = float('{:.3f}'.format((apartment_data_frame['Area'][row] -
                                                                                 apartment_data_frame['KitchenArea'][row]) * 0.6))
 
-            elif column_name == 'SquareMeterCost' and pd.isna(apartment_data_frame[column_name][row]) \
-                                                  and not pd.isna(apartment_data_frame['Cost'][row]):
-
-                apartment_data_frame[column_name][row] = apartment_data_frame['Cost'][row] / apartment_data_frame['LivingArea'][row]
-
             elif column_name == 'WallsMaterial' and pd.isna(apartment_data_frame[column_name][row]):
                 apartment_data_frame[column_name][row] = 'unknown'
 
@@ -129,9 +124,3 @@ def change_building_types():
      WHERE BuildingType='Mansion' OR BuildingType='Cottage' OR BuildingType='House in a cottage town' 
      OR BuildingType='Townhouse'""")
     database_connect.commit()
-
-if __name__ == '__main__':
-    # print(pd.isna(apartment_data_frame[['Cost','LivingArea']][:2]))
-    # fill_all_absent_data()
-    # plot_build_type_and_cost()
-    change_building_types()
