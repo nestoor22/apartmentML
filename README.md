@@ -15,6 +15,6 @@ Create Google Maps API key and insert into:
 
 Run main.py
 
-All saves data to ApartmentsInfo.db
+All data saves to ApartmentsInfo.db
 
 Wait =)
