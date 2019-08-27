@@ -25,7 +25,7 @@ def work_with_data():
     change_building_types()
 
 
-# start_scrapping()
+start_scrapping()
 
 insert_data_to_json()
 
