@@ -8,6 +8,7 @@ matplotlib.pyplot.style.use('ggplot')
 database_connect = sqlite3.connect('ApartmentsInfo.db')
 apartment_data_frame = pd.read_sql("""SELECT * FROM apartment_info""", database_connect)
 
+
 number_of_rows = len(apartment_data_frame)
 
 
