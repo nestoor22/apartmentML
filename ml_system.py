@@ -36,6 +36,7 @@ def scale_numeric_columns(dataset):
         numeric_transformer = MinMaxScaler(feature_range=(0, 1))
         dataset[column] = numeric_transformer.fit_transform(dataset[column].values.reshape(-1, 1))
         information_about_transformers[column] = {'transformer-object': numeric_transformer}
+
     return dataset
 
 
@@ -52,7 +53,6 @@ def scale_label_columns(dataset):
         information_about_transformers[column] = {'transformer-object': one_hot_transformer}
         dataset = pd.concat([dataset, one_hot_dataset], axis=1)
 
-    print(dataset.columns)
     return dataset
 
 
@@ -82,11 +82,8 @@ def rescale_data(dataset):
     dataset_with_numeric_columns = scale_numeric_columns(original_dataset[columns_with_numeric_data])
 
     rescaled_dataset = pd.concat([dataset_with_numeric_columns, dataset_with_label_columns], axis=1)
-    print(rescaled_dataset.columns)
-    # decode_numeric(rescaled_dataset, columns_with_numeric_data)
-    # decode_labels(rescaled_dataset, columns_with_str_data)
 
     return rescaled_dataset
 
 
-print(rescale_data(original_dataset))
+# print(rescale_data(original_dataset))

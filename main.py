@@ -14,11 +14,6 @@ def create_sql_database():
     data_to_db()
 
 
-def save_trained_model():
-    from ml_system import run_training_and_save_apartment_price_model as create_model
-    create_model()
-
-
 def work_with_data():
     from work_with_data import change_building_types, fill_absent_data_and_remove_incorrect
     fill_absent_data_and_remove_incorrect()

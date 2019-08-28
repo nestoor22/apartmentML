@@ -1,10 +1,7 @@
 import sqlite3
 import pandas as pd
-import matplotlib
-import matplotlib.pyplot as plt
 
 
-matplotlib.pyplot.style.use('ggplot')
 database_connect = sqlite3.connect('ApartmentsInfo.db')
 apartment_data_frame = pd.read_sql("""SELECT * FROM apartment_info""", database_connect)
 
@@ -70,54 +67,6 @@ def fill_absent_data_and_remove_incorrect():
     remove_low_cost()
     remove_too_big_area()
     remove_incorrect_ceiling_height()
-
-
-def plot_correlation():
-    corr = apartment_data_frame.corr()
-    f = plt.figure(figsize=(16, 15))
-    plt.matshow(corr, fignum=f.number)
-    plt.xticks(range(len(corr.columns)), corr.columns, fontsize=14, rotation=90)
-    plt.yticks(range(len(corr.columns)), corr.columns, fontsize=14)
-    cb = plt.colorbar()
-    cb.ax.tick_params(labelsize=14)
-    plt.title('Correlation Matrix\n\n\n\n', fontsize=26, loc='center')
-    plt.show()
-
-
-def plot_area_histogram():
-    _, ax = plt.subplots()
-    ax.hist(apartment_data_frame['Area'], color='#539caf')
-    ax.set_ylabel('')
-    ax.set_xlabel('')
-    ax.set_title('Histogram of Area')
-    plt.show()
-
-
-def plot_bar_corr_between_areas():
-    _, ax = plt.subplots()
-    ax.bar(apartment_data_frame['LivingArea'], apartment_data_frame['KitchenArea'], color='#539caf', align='center')
-    ax.set_ylabel('')
-    ax.set_xlabel('')
-    ax.set_title('')
-    plt.show()
-
-
-def plot_bar_corr_between_cost():
-    _, ax = plt.subplots(figsize=(15,10))
-    ax.bar(apartment_data_frame['DistanceToCenter'], apartment_data_frame['Cost'], color='green', align='center')
-    ax.set_ylabel('')
-    ax.set_xlabel('')
-    ax.set_title('')
-    plt.show()
-
-
-def plot_build_type_and_cost():
-    _, ax = plt.subplots()
-    ax.scatter(apartment_data_frame['Cost'], apartment_data_frame['BuildingType'], s=3, color='red', alpha=1)
-    ax.set_ylabel('')
-    ax.set_xlabel('')
-    ax.set_title('Plot')
-    plt.show()
 
 
 def change_building_types():
