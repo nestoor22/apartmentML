@@ -33,8 +33,6 @@ create_sql_database()
 
 work_with_data()
 
-
-
 # save_trained_model()
 
 
