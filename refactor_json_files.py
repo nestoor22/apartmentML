@@ -136,3 +136,4 @@ def create_json_for_db():
     os.remove('info.json')
     os.remove('pages_link.json')
     return 1
+
