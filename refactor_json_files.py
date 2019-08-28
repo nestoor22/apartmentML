@@ -95,9 +95,11 @@ def create_json_for_db():
                 if info_dt[key] not in cashed and key in translate_dict:
                     try:
                         result_dict[translate_dict[key]] = float(mtranslate.translate(info_dt[key], 'en')
-                                                                 .replace('m', '').replace('\xa0', ''))
+                                                                 .replace('m', '').replace('\xa0', '')
+                                                                 .replace(' m', '').replace('м', ''))
+
                         cashed[info_dt[key]] = float(mtranslate.translate(info_dt[key], 'en').replace(' м', '')
-                                                     .replace('\xa0', '').replace(' m', ''))
+                                                     .replace('\xa0', '').replace(' m', '').replace('м', ''))
                     except ValueError:
                         result_dict[translate_dict[key]] = mtranslate.translate(info_dt[key], 'en').replace('\xa0', '')
                         cashed[info_dt[key]] = mtranslate.translate(info_dt[key], 'en').replace('\xa0', '')
