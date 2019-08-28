@@ -9,10 +9,12 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout
 from keras.optimizers import RMSprop
 
-original_dataset = pd.read_sql('SELECT * FROM apartment_info', sqlite3.connect('ApartmentsInfo.db'))\
-    .drop(columns=['index'])
-numeric_scaler = MinMaxScaler(feature_range=(0, 1))
-string_scaler = LabelEncoder()
+original_dataset = pd.read_sql('SELECT * FROM apartment_info', sqlite3.connect('ApartmentsInfo.db'))
+    # .drop(columns=['index'])
+
+original_dataset["CeilingHeight"] = pd.to_numeric(original_dataset['CeilingHeight'])
+
+information_about_transformers = {}
 
 
 def search_different_types_column(dataset):
@@ -28,63 +30,63 @@ def search_different_types_column(dataset):
     return numeric_columns, string_columns
 
 
+def scale_numeric_columns(dataset):
+
+    for column in dataset:
+        numeric_transformer = MinMaxScaler(feature_range=(0, 1))
+        dataset[column] = numeric_transformer.fit_transform(dataset[column].values.reshape(-1, 1))
+        information_about_transformers[column] = {'transformer-object': [numeric_transformer]}
+    return dataset
+
+
+def scale_label_columns(dataset):
+
+    for column in dataset:
+        string_transformer = LabelEncoder()
+        numeric_transformer = MinMaxScaler(feature_range=(0, 1))
+
+        labels_to_numbers = string_transformer.fit_transform(dataset[column].values.reshape(-1, 1))
+        numbers_to_range = numeric_transformer.fit_transform(labels_to_numbers.reshape(-1, 1))
+        information_about_transformers[column] = {'transformer-object': [numeric_transformer, string_transformer]}
+        dataset[column] = numbers_to_range
+
+    return dataset
+
+
+def decode_numeric(dataset, columns):
+    for column in columns:
+        dataset[column] = information_about_transformers[column]['transformer-object'][0].\
+            inverse_transform(dataset[column].values.reshape(-1, 1))
+
+    return dataset
+
+
+def decode_labels(dataset, columns):
+    for column in columns:
+        number_of_label = information_about_transformers[column]['transformer-object'][0].\
+            inverse_transform(dataset[column].values.reshape(-1, 1))
+
+        label_string = information_about_transformers[column]['transformer-object'][1].\
+            inverse_transform(number_of_label.reshape(len(number_of_label),).astype(int))
+
+        dataset[column] = label_string
+
+    return dataset
+
+
 def rescale_data(dataset):
+
     columns_with_numeric_data, columns_with_str_data = search_different_types_column(dataset)
 
-    dataset_with_numeric_columns = original_dataset[columns_with_numeric_data]
-    dataset_with_str_columns = original_dataset[columns_with_str_data]
+    dataset_with_label_columns = scale_label_columns(original_dataset[columns_with_str_data])
+    dataset_with_numeric_columns = scale_numeric_columns(original_dataset[columns_with_numeric_data])
 
-    scaled_numeric_columns = numeric_scaler.fit_transform(np.array(dataset_with_numeric_columns))
-    scaled_string_columns = string_scaler.fit_transform(np.array(dataset_with_str_columns).ravel())
-    scaled_string_columns = scaled_string_columns.reshape(len(dataset_with_str_columns),
-                                                          len(columns_with_str_data))
+    rescaled_dataset = pd.concat([dataset_with_numeric_columns, dataset_with_label_columns], axis=1)
 
-    dataset_with_numeric_columns[columns_with_numeric_data] = scaled_numeric_columns
-    dataset_with_str_columns[columns_with_str_data] = scaled_string_columns.reshape(len(dataset_with_str_columns),
-                                                                                    len(columns_with_str_data))
-
-    rescaled_dataset = pd.concat([dataset_with_numeric_columns, dataset_with_str_columns], axis=1)
+    # decode_numeric(rescaled_dataset, columns_with_numeric_data)
+    # decode_labels(rescaled_dataset, columns_with_str_data)
 
     return rescaled_dataset
 
 
-def split_data_and_train_model(dataset, train_s, test_s):
-    rescaled_dataset = rescale_data(dataset)
-    X_train, X_test, y_train, y_test = train_test_split(rescaled_dataset, rescaled_dataset['Cost'],
-                                                        test_size=test_s, train_size=train_s)
-
-    model = Sequential()
-    model.add(Dense(64, input_dim=X_train.columns.shape[0], activation=tf.nn.sigmoid,
-                    kernel_initializer='normal'))
-    model.add(Dense(256, activation=tf.nn.relu, kernel_initializer='normal'))
-    model.add(Dense(256, activation=tf.nn.relu, kernel_initializer='normal'))
-    model.add(Dropout(0.3))
-    model.add(Dense(256, activation=tf.nn.relu, kernel_initializer='normal'))
-    model.add(Dense(256, activation=tf.nn.relu, kernel_initializer='normal'))
-    model.add(Dense(1, kernel_initializer='normal', activation=keras.activations.linear))
-    model.compile(loss='mean_squared_error', optimizer=RMSprop(0.0001), metrics=['mean_absolute_error',
-                                                                                 'mean_squared_error'])
-    early_stop = keras.callbacks.EarlyStopping(monitor='loss', patience=10)
-    model.fit(X_train, y_train, batch_size=32, epochs=100, callbacks=[early_stop])
-
-    model_js = model.to_json()
-    with open('ml_model_in_json', 'w') as json_file:
-        json_file.write(model_js)
-
-    predicted = model.predict(X_test).flatten()
-    X_test['Cost'] = predicted
-
-    X_test_string_decode = string_scaler.inverse_transform(X_test[['BuildingType', 'Condition', 'WallsMaterial']])
-    X_test_string_df = pd.DataFrame(X_test_string_decode, columns=['BuildingType', 'Condition', 'WallsMaterial'])
-
-    X_test_numeric = X_test.drop(columns=['BuildingType', 'Condition', 'WallsMaterial']).reset_index()\
-        .drop(columns='index')
-    X_test_numeric_decode = numeric_scaler.inverse_transform(X_test_numeric)
-    X_test_numeric_df = pd.DataFrame(X_test_numeric_decode, columns=X_test_numeric.columns)
-
-    res = pd.concat([X_test_numeric_df, X_test_string_df], axis=1)
-    res.to_excel('result.xlsx')
-
-
-def run_training_and_save_apartment_price_model():
-    split_data_and_train_model(original_dataset, 0.8, 0.2)
+print(rescale_data(original_dataset))

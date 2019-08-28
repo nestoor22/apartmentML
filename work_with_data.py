@@ -123,5 +123,10 @@ def plot_build_type_and_cost():
 def change_building_types():
     database_connect.cursor().execute("""UPDATE apartment_info SET BuildingType = 'House'
      WHERE BuildingType='Mansion' OR BuildingType='Cottage' OR BuildingType='House in a cottage town' 
-     OR BuildingType='Townhouse'""")
+     OR BuildingType='Townhouse' OR BuildingType='House in a cottage'""")
+
+    database_connect.cursor().execute("""DELETE FROM apartment_info WHERE BuildingType='Part of the house'""")
     database_connect.commit()
+
+
+change_building_types()
