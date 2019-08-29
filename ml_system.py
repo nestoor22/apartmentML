@@ -1,13 +1,12 @@
-import sqlite3
 import joblib
+import sqlite3
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, LabelEncoder
-from sklearn.model_selection import train_test_split
 from tensorflow import keras
-from keras.models import Sequential
-from keras.optimizers import RMSprop
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, LabelEncoder
+
 
 original_dataset = pd.read_sql('SELECT * FROM apartment_info', sqlite3.connect('ApartmentsInfo.db'))
     # .drop(columns=['index'])
@@ -100,3 +99,40 @@ def normalize_data(data, data_stats):
 dataset = rescale_data(original_dataset)
 
 
+def train_model_for_price_prediction():
+    x = dataset.drop(columns=['Cost'])
+    y = dataset['Cost']
+    train_input, test_input, train_output, test_output = train_test_split(x, y, train_size=0.8,
+                                                                          test_size=0.2, random_state=0)
+
+    train_stats = train_input.describe().transpose()
+    normalize_train_data = normalize_data(train_input, train_stats)
+    normalize_test_data = normalize_data(test_input, train_stats)
+
+    model = keras.Sequential([keras.layers.Dense(512, activation=tf.nn.sigmoid, input_shape=[len(train_input.keys())]),
+                              keras.layers.Dense(128, activation=tf.nn.relu),
+                              keras.layers.Dense(128, activation=tf.nn.tanh),
+                              keras.layers.Dense(512, activation=tf.nn.relu),
+                              keras.layers.Dense(1, activation=tf.nn.sigmoid)])
+
+    optimizer = tf.keras.optimizers.RMSprop(0.001)
+    callback = keras.callbacks.EarlyStopping(monitor='val_loss', patience=15, restore_best_weights=True)
+    model.compile(loss='mean_squared_error',
+                  optimizer=optimizer,
+                  metrics=['mean_absolute_error', 'mean_squared_error'])
+
+    model.fit(normalize_train_data, train_output, epochs=1000, batch_size=16,
+              validation_split=0.15, callbacks=[callback], verbose=1)
+
+    test_predictions = model.predict(normalize_test_data).flatten()
+
+    test_predictions = information_about_transformers['Cost']['transformer-object'].\
+        inverse_transform(test_predictions.reshape(-1, 1))
+
+    print(test_predictions)
+
+    with open('models/price_prediction_model.json', 'w') as f:
+        f.write(model.to_json())
+
+
+train_model_for_price_prediction()

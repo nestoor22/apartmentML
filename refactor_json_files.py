@@ -1,8 +1,8 @@
 import os
-import json
 import re
-import mtranslate
+import json
 import gmaps
+import mtranslate
 
 list_of_links = json.load(open('info.json'))
 

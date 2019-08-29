@@ -1,8 +1,6 @@
-import matplotlib
-import matplotlib.pyplot as plt
-import pandas as pd
 import sqlite3
-from ml_system import rescale_data
+import pandas as pd
+import matplotlib.pyplot as plt
 
 original_dataset = pd.read_sql('SELECT * FROM apartment_info', sqlite3.connect('ApartmentsInfo.db'))
 original_dataset["CeilingHeight"] = pd.to_numeric(original_dataset['CeilingHeight'])
@@ -56,5 +54,3 @@ def plot_build_type_and_cost():
     ax.set_xlabel('')
     ax.set_title('Plot')
     plt.show()
-
-

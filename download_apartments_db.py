@@ -1,6 +1,6 @@
 import json
-from dbclass import ApartmentsDB
 from apartment import Apartment
+from dbclass import ApartmentsDB
 
 
 def load_apartments_info_to_db():
