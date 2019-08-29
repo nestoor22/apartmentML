@@ -12,7 +12,3 @@ def load_apartments_info_to_db():
             apart_obj.__dict__[key] = apart_dict[key]
         ApartmentDataBase.add_to_db(apart_obj)
     return 1
-
-
-if __name__ == '__main__':
-    load_apartments_info_to_db()
