@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 from tensorflow import keras
+from keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, LabelEncoder
 
@@ -99,6 +100,22 @@ def normalize_data(data, data_stats):
 dataset = rescale_data(original_dataset)
 
 
+def build_nn_model(train_input):
+
+    model = keras.Sequential([keras.layers.Dense(512, activation=tf.nn.sigmoid, input_shape=[len(train_input.keys())]),
+                              keras.layers.Dense(128, activation=tf.nn.relu),
+                              keras.layers.Dense(128, activation=tf.nn.tanh),
+                              keras.layers.Dense(512, activation=tf.nn.relu),
+                              keras.layers.Dense(1, activation=tf.nn.sigmoid)])
+
+    optimizer = tf.keras.optimizers.RMSprop(0.001)
+    model.compile(loss='mean_squared_error',
+                  optimizer=optimizer,
+                  metrics=['mean_absolute_error', 'mean_squared_error'])
+
+    return model
+
+
 def train_model_for_price_prediction():
     x = dataset.drop(columns=['Cost'])
     y = dataset['Cost']
@@ -109,18 +126,9 @@ def train_model_for_price_prediction():
     normalize_train_data = normalize_data(train_input, train_stats)
     normalize_test_data = normalize_data(test_input, train_stats)
 
-    model = keras.Sequential([keras.layers.Dense(512, activation=tf.nn.sigmoid, input_shape=[len(train_input.keys())]),
-                              keras.layers.Dense(128, activation=tf.nn.relu),
-                              keras.layers.Dense(128, activation=tf.nn.tanh),
-                              keras.layers.Dense(512, activation=tf.nn.relu),
-                              keras.layers.Dense(1, activation=tf.nn.sigmoid)])
+    model = build_nn_model(train_input)
 
-    optimizer = tf.keras.optimizers.RMSprop(0.001)
     callback = keras.callbacks.EarlyStopping(monitor='val_loss', patience=15, restore_best_weights=True)
-    model.compile(loss='mean_squared_error',
-                  optimizer=optimizer,
-                  metrics=['mean_absolute_error', 'mean_squared_error'])
-
     model.fit(normalize_train_data, train_output, epochs=1000, batch_size=16,
               validation_split=0.15, callbacks=[callback], verbose=1)
 
@@ -129,10 +137,73 @@ def train_model_for_price_prediction():
     test_predictions = information_about_transformers['Cost']['transformer-object'].\
         inverse_transform(test_predictions.reshape(-1, 1))
 
-    print(test_predictions)
-
     with open('models/price_prediction_model.json', 'w') as f:
         f.write(model.to_json())
 
 
-train_model_for_price_prediction()
+def train_model_for_area_prediction():
+    x = dataset.drop(columns=['Area'])
+    y = dataset['Area']
+    train_input, test_input, train_output, test_output = train_test_split(x, y, train_size=0.8,
+                                                                          test_size=0.2, random_state=0)
+
+    train_stats = train_input.describe().transpose()
+    normalize_train_data = normalize_data(train_input, train_stats)
+    normalize_test_data = normalize_data(test_input, train_stats)
+
+    model = build_nn_model(train_input)
+    callback = keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+    model.fit(normalize_train_data, train_output, epochs=1000, batch_size=8,
+              validation_split=0.1, callbacks=[callback], verbose=1)
+
+    test_predictions = model.predict(normalize_test_data).flatten()
+
+    test_predictions = information_about_transformers['Area']['transformer-object'].\
+        inverse_transform(test_predictions.reshape(-1, 1))
+
+    print(test_predictions)
+
+    with open('models/area_prediction_model.json', 'w') as f:
+        f.write(model.to_json())
+
+
+def train_model_for_distance_to_center():
+    x = dataset.drop(columns=['DistanceToCenter'])
+    y = dataset['DistanceToCenter']
+    train_input, test_input, train_output, test_output = train_test_split(x, y, train_size=0.8,
+                                                                          test_size=0.2, random_state=0)
+
+    train_stats = train_input.describe().transpose()
+    normalize_train_data = normalize_data(train_input, train_stats)
+    normalize_test_data = normalize_data(test_input, train_stats)
+
+    model = build_nn_model(train_input)
+    callback = keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+    model.fit(normalize_train_data, train_output, epochs=1000, batch_size=8,
+              validation_split=0.1, callbacks=[callback], verbose=1)
+
+    test_predictions = model.predict(normalize_test_data).flatten()
+
+    test_predictions = information_about_transformers['DistanceToCenter']['transformer-object'].\
+        inverse_transform(test_predictions.reshape(-1, 1))
+
+    print(test_predictions)
+
+    with open('models/distance_to_center_prediction_model.json', 'w') as f:
+        f.write(model.to_json())
+
+
+# def train_model_for_rooms_prediction():
+#     x = dataset.drop(columns=['Rooms'])
+#     num_classes = len(dataset['Rooms'].drop_duplicates())
+#
+#     y_raw = original_dataset['Rooms'].values
+#
+#     y_raw = y_raw - min(y_raw)
+#
+#     y = to_categorical(y_raw, num_classes)
+#
+#     train_input, test_input, train_output, test_output = train_test_split(x, y, train_size=0.8,
+#                                                                           test_size=0.2, random_state=0)
+#
+# train_model_for_rooms_prediction()
