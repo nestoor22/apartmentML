@@ -193,17 +193,36 @@ def train_model_for_distance_to_center():
         f.write(model.to_json())
 
 
-# def train_model_for_rooms_prediction():
-#     x = dataset.drop(columns=['Rooms'])
-#     num_classes = len(dataset['Rooms'].drop_duplicates())
-#
-#     y_raw = original_dataset['Rooms'].values
-#
-#     y_raw = y_raw - min(y_raw)
-#
-#     y = to_categorical(y_raw, num_classes)
-#
-#     train_input, test_input, train_output, test_output = train_test_split(x, y, train_size=0.8,
-#                                                                           test_size=0.2, random_state=0)
-#
-# train_model_for_rooms_prediction()
+def train_model_for_rooms_prediction():
+    x = dataset.drop(columns=['Rooms'])
+
+    num_classes = len(dataset['Rooms'].drop_duplicates())
+
+    y_raw = original_dataset['Rooms'].values
+
+    y_raw = y_raw - min(y_raw)
+
+    y = to_categorical(y_raw, num_classes)
+
+    train_input, test_input, train_output, test_output = train_test_split(x, y, train_size=0.8,
+                                                                          test_size=0.2, random_state=0)
+
+    model = keras.models.Sequential()
+    model.add(keras.layers.Dense(512, input_shape=(len(train_input.columns),)))
+    model.add(keras.layers.Activation('relu'))
+    model.add(keras.layers.Dropout(0.3))
+    model.add(keras.layers.Dense(256))
+    model.add(keras.layers.Activation('relu'))
+    model.add(keras.layers.Dense(num_classes))
+    model.add(keras.layers.Activation('softmax'))
+
+    model.compile(loss='categorical_crossentropy',
+                  optimizer='adamax',
+                  metrics=['accuracy'])
+
+    model.fit(train_input, train_output,
+              batch_size=8, epochs=1000, verbose=1)
+
+    print(model.evaluate(test_input, test_output))
+
+train_model_for_rooms_prediction()
