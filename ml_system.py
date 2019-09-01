@@ -227,4 +227,4 @@ def train_model_for_rooms_prediction():
         f.write(model.to_json())
 
 
-train_model_for_rooms_prediction()
+train_model_for_distance_to_center()
