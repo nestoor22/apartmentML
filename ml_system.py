@@ -225,4 +225,7 @@ def train_model_for_rooms_prediction():
 
     print(model.evaluate(test_input, test_output))
 
+    with open('models/rooms_prediction_model.json', 'w') as f:
+        f.write(model.to_json())
+
 train_model_for_rooms_prediction()
