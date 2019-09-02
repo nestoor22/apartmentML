@@ -5,6 +5,8 @@ import pandas as pd
 import tensorflow as tf
 from tensorflow import keras
 from keras.utils import to_categorical
+from sklearn.metrics import confusion_matrix
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, LabelEncoder
 
@@ -193,7 +195,7 @@ def train_model_for_distance_to_center():
         f.write(model.to_json())
 
 
-def train_model_for_rooms_prediction():
+def train_nn_model_for_rooms_prediction():
     x = dataset.drop(columns=['Rooms'])
     x = x.values
     num_classes = len(dataset['Rooms'].drop_duplicates())
@@ -227,4 +229,22 @@ def train_model_for_rooms_prediction():
         f.write(model.to_json())
 
 
-train_model_for_distance_to_center()
+def train_decision_tree_model_for_rooms_prediction():
+    x = dataset.drop(columns=['Rooms'])
+    y = original_dataset['Rooms']
+    train_input, test_input, train_output, test_output = train_test_split(x, y, train_size=0.8,
+                                                                          test_size=0.2, random_state=0)
+
+    decision_tree_model = DecisionTreeClassifier(max_depth=100).fit(train_input, train_output)
+    svm_predictions = decision_tree_model.predict(test_input)
+
+    accuracy = decision_tree_model.score(test_input, test_output)
+
+    cm = confusion_matrix(test_output, svm_predictions)
+    import pickle
+    pkl_filename = "models/decision_tree_model.pkl"
+    with open(pkl_filename, 'wb') as file:
+        pickle.dump(decision_tree_model, file)
+
+    print(accuracy)
+
