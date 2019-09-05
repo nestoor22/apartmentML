@@ -20,17 +20,19 @@ def work_with_data():
     change_building_types()
 
 
+def save_trained_models():
+    from ml_system import train_all_models as train
+    train()
+
+
 start_scrapping()
 
 insert_data_to_json()
 
 create_sql_database()
 
-
 work_with_data()
 
-
-
-# save_trained_model()
+save_trained_models()
 
 
