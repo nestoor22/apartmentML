@@ -195,7 +195,7 @@ def train_model_for_distance_to_center():
 
     with open('models/distance_to_center_prediction_model.json', 'w') as f:
         f.write(model.to_json())
-        model.save_weights('models/distance_to_center_weights.json')
+        model.save_weights('models/distance_to_center_weights.h5')
 
 
 def train_nn_model_for_rooms_prediction():
