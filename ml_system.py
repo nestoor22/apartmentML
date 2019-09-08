@@ -141,7 +141,7 @@ def train_model_for_price_prediction():
 
     with open('models/price_prediction_model.json', 'w') as f:
         f.write(model.to_json())
-        model.load_weights('models/price_prediction_weights.h5')
+        model.save_weights('models/price_prediction_weights.h5')
 
 
 def train_model_for_area_prediction():
@@ -168,7 +168,7 @@ def train_model_for_area_prediction():
 
     with open('models/area_prediction_model.json', 'w') as f:
         f.write(model.to_json())
-        model.load_weights('models/area_prediction_weights.h5')
+        model.save_weights('models/area_prediction_weights.h5')
 
 
 def train_model_for_distance_to_center():
@@ -195,7 +195,7 @@ def train_model_for_distance_to_center():
 
     with open('models/distance_to_center_prediction_model.json', 'w') as f:
         f.write(model.to_json())
-        model.load_weights('models/distance_to_center_weights.json')
+        model.save_weights('models/distance_to_center_weights.json')
 
 
 def train_nn_model_for_rooms_prediction():
@@ -230,7 +230,7 @@ def train_nn_model_for_rooms_prediction():
 
     with open('models/rooms_prediction_model.json', 'w') as f:
         f.write(model.to_json())
-        model.load_weights('models/rooms_prediction_weights.h5')
+        model.save_weights('models/rooms_prediction_weights.h5')
 
 
 def train_decision_tree_model_for_rooms_prediction():
@@ -257,6 +257,9 @@ def train_all_models():
     train_model_for_area_prediction()
     train_nn_model_for_rooms_prediction()
     train_decision_tree_model_for_rooms_prediction()
+
+    import joblib
+    joblib.dump(information_about_transformers, 'models/transformers_info')
 
 
 

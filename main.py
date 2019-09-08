@@ -25,13 +25,13 @@ def save_trained_models():
     train()
 
 
-start_scrapping()
-
-insert_data_to_json()
-
-create_sql_database()
-
-work_with_data()
+# start_scrapping()
+#
+# insert_data_to_json()
+#
+# create_sql_database()
+#
+# work_with_data()
 
 save_trained_models()
 
