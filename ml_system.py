@@ -11,44 +11,44 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, LabelEncoder
 
 
-original_dataset = pd.read_sql('SELECT * FROM apartment_info', sqlite3.connect('ApartmentsInfo.db'))
+original_dataset = pd.read_sql('SELECT * FROM apartment_info', sqlite3.connect('ApartmentsInfo.db'))\
     # .drop(columns=['index'])
 
-original_dataset["CeilingHeight"] = pd.to_numeric(original_dataset['CeilingHeight'])
+original_dataset["ceiling_height"] = pd.to_numeric(original_dataset['ceiling_height'])
 
 information_about_transformers = {}
 
 
-def search_different_types_column(dataset):
+def search_different_types_column(loaded_dataset):
     numeric_columns = []
     string_columns = []
-    for column in dataset:
-        if dataset[column].dtype == np.int64 or dataset[column].dtype == np.float64:
+    for column in loaded_dataset:
+        if loaded_dataset[column].dtype == np.int64 or loaded_dataset[column].dtype == np.float64:
             numeric_columns.append(column)
 
-        elif dataset[column].dtype == object:
+        elif loaded_dataset[column].dtype == object:
             string_columns.append(column)
 
     return numeric_columns, string_columns
 
 
-def scale_numeric_columns(dataset):
+def scale_numeric_columns(loaded_dataset):
 
-    for column in dataset:
+    for column in loaded_dataset:
         numeric_transformer = MinMaxScaler(feature_range=(0, 1))
-        dataset[column] = numeric_transformer.fit_transform(dataset[column].values.reshape(-1, 1))
+        loaded_dataset[column] = numeric_transformer.fit_transform(loaded_dataset[column].values.reshape(-1, 1))
         information_about_transformers[column] = {'transformer-object': numeric_transformer}
 
-    return dataset
+    return loaded_dataset
 
 
-def scale_label_columns(dataset):
+def scale_label_columns(loaded_dataset):
 
-    for column in dataset:
+    for column in loaded_dataset:
         label_to_num_transformer = LabelEncoder()
         one_hot_transformer = OneHotEncoder()
 
-        labels_number = label_to_num_transformer.fit_transform(dataset[column].values.reshape(-1, 1))
+        labels_number = label_to_num_transformer.fit_transform(loaded_dataset[column].values.reshape(-1, 1))
         labels_to_binary = one_hot_transformer.fit_transform(labels_number.reshape(-1, 1)).toarray()
 
         one_hot_dataset = pd.DataFrame(labels_to_binary, columns=[column+'_'+str(int(i))
@@ -57,32 +57,32 @@ def scale_label_columns(dataset):
         information_about_transformers[column] = {'transformer-objects': {'OneHotTransformer': one_hot_transformer,
                                                                           'LabelTransformer': label_to_num_transformer}}
 
-        dataset = pd.concat([dataset.drop(columns=column), one_hot_dataset], axis=1)
+        loaded_dataset = pd.concat([loaded_dataset.drop(columns=column), one_hot_dataset], axis=1)
 
-    return dataset
+    return loaded_dataset
 
 
-def decode_numeric(dataset, columns):
+def decode_numeric(loaded_dataset, columns):
     for column in columns:
-        dataset[column] = information_about_transformers[column]['transformer-object'].\
-            inverse_transform(dataset[column].values.reshape(-1, 1))
+        loaded_dataset[column] = information_about_transformers[column]['transformer-object'].\
+            inverse_transform(loaded_dataset[column].values.reshape(-1, 1))
 
-    return dataset
+    return loaded_dataset
 
 
-def decode_labels(dataset, columns):
+def decode_labels(loaded_dataset, columns):
     for column in columns:
         binary_to_label = information_about_transformers[column]['transformer-object'].\
-            inverse_transform(dataset[column].values.reshape(-1, 1))
+            inverse_transform(loaded_dataset[column].values.reshape(-1, 1))
 
-        dataset[column] = binary_to_label
+        loaded_dataset[column] = binary_to_label
 
-    return dataset
+    return loaded_dataset
 
 
-def rescale_data(dataset):
+def rescale_data(loaded_dataset):
 
-    columns_with_numeric_data, columns_with_str_data = search_different_types_column(dataset)
+    columns_with_numeric_data, columns_with_str_data = search_different_types_column(loaded_dataset)
 
     dataset_with_label_columns = scale_label_columns(original_dataset[columns_with_str_data])
     dataset_with_numeric_columns = scale_numeric_columns(original_dataset[columns_with_numeric_data])
@@ -119,8 +119,8 @@ def build_nn_model(train_input):
 
 
 def train_model_for_price_prediction():
-    x = dataset.drop(columns=['Cost'])
-    y = dataset['Cost']
+    x = dataset.drop(columns=['cost'])
+    y = dataset['cost']
     train_input, test_input, train_output, test_output = train_test_split(x, y, train_size=0.8,
                                                                           test_size=0.2, random_state=0)
 
@@ -136,7 +136,7 @@ def train_model_for_price_prediction():
 
     test_predictions = model.predict(normalize_test_data).flatten()
 
-    test_predictions = information_about_transformers['Cost']['transformer-object'].\
+    test_predictions = information_about_transformers['cost']['transformer-object'].\
         inverse_transform(test_predictions.reshape(-1, 1))
 
     with open('models/price_prediction_model.json', 'w') as f:
@@ -145,8 +145,8 @@ def train_model_for_price_prediction():
 
 
 def train_model_for_area_prediction():
-    x = dataset.drop(columns=['Area'])
-    y = dataset['Area']
+    x = dataset.drop(columns=['area'])
+    y = dataset['area']
     train_input, test_input, train_output, test_output = train_test_split(x, y, train_size=0.8,
                                                                           test_size=0.2, random_state=0)
 
@@ -161,7 +161,7 @@ def train_model_for_area_prediction():
 
     test_predictions = model.predict(normalize_test_data).flatten()
 
-    test_predictions = information_about_transformers['Area']['transformer-object'].\
+    test_predictions = information_about_transformers['area']['transformer-object'].\
         inverse_transform(test_predictions.reshape(-1, 1))
 
     print(test_predictions)
@@ -172,8 +172,8 @@ def train_model_for_area_prediction():
 
 
 def train_model_for_distance_to_center():
-    x = dataset.drop(columns=['DistanceToCenter'])
-    y = dataset['DistanceToCenter']
+    x = dataset.drop(columns=['distance_to_center'])
+    y = dataset['distance_to_center']
     train_input, test_input, train_output, test_output = train_test_split(x, y, train_size=0.8,
                                                                           test_size=0.2, random_state=0)
 
@@ -188,7 +188,7 @@ def train_model_for_distance_to_center():
 
     test_predictions = model.predict(normalize_test_data).flatten()
 
-    test_predictions = information_about_transformers['DistanceToCenter']['transformer-object'].\
+    test_predictions = information_about_transformers['distance_to_center']['transformer-object'].\
         inverse_transform(test_predictions.reshape(-1, 1))
 
     print(test_predictions)
@@ -199,11 +199,11 @@ def train_model_for_distance_to_center():
 
 
 def train_nn_model_for_rooms_prediction():
-    x = dataset.drop(columns=['Rooms'])
+    x = dataset.drop(columns=['rooms'])
     x = x.values
-    num_classes = len(dataset['Rooms'].drop_duplicates())
+    num_classes = len(dataset['rooms'].drop_duplicates())
 
-    y_raw = original_dataset['Rooms'].values
+    y_raw = original_dataset['rooms'].values
 
     y_raw = y_raw - min(y_raw)
 
@@ -234,8 +234,8 @@ def train_nn_model_for_rooms_prediction():
 
 
 def train_decision_tree_model_for_rooms_prediction():
-    x = dataset.drop(columns=['Rooms'])
-    y = original_dataset['Rooms']
+    x = dataset.drop(columns=['rooms'])
+    y = original_dataset['rooms']
     train_input, test_input, train_output, test_output = train_test_split(x, y, train_size=0.8,
                                                                           test_size=0.2, random_state=0)
 

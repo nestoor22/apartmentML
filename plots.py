@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 original_dataset = pd.read_sql('SELECT * FROM apartment_info', sqlite3.connect('ApartmentsInfo.db'))
-original_dataset["CeilingHeight"] = pd.to_numeric(original_dataset['CeilingHeight'])
+original_dataset["ceiling_height"] = pd.to_numeric(original_dataset['ceiling_height'])
 
 apartment_data_frame = original_dataset
 
@@ -22,7 +22,7 @@ def plot_correlation():
 
 def plot_area_histogram():
     _, ax = plt.subplots()
-    ax.hist(apartment_data_frame['Area'], color='#539caf')
+    ax.hist(apartment_data_frame['area'], color='#539caf')
     ax.set_ylabel('')
     ax.set_xlabel('')
     ax.set_title('Histogram of Area')
@@ -31,7 +31,7 @@ def plot_area_histogram():
 
 def plot_bar_corr_between_areas():
     _, ax = plt.subplots()
-    ax.bar(apartment_data_frame['LivingArea'], apartment_data_frame['KitchenArea'], color='#539caf', align='center')
+    ax.bar(apartment_data_frame['living_area'], apartment_data_frame['kitchen_area'], color='#539caf', align='center')
     ax.set_ylabel('')
     ax.set_xlabel('')
     ax.set_title('')
@@ -40,7 +40,7 @@ def plot_bar_corr_between_areas():
 
 def plot_bar_corr_between_cost():
     _, ax = plt.subplots(figsize=(15,10))
-    ax.bar(apartment_data_frame['DistanceToCenter'], apartment_data_frame['Cost'], color='green', align='center')
+    ax.bar(apartment_data_frame['distance_to_center'], apartment_data_frame['cost'], color='green', align='center')
     ax.set_ylabel('')
     ax.set_xlabel('')
     ax.set_title('')

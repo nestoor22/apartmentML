@@ -26,9 +26,9 @@ def save_trained_models():
 
 
 # start_scrapping()
-#
+
 # insert_data_to_json()
-#
+
 # create_sql_database()
 #
 # work_with_data()

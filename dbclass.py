@@ -7,21 +7,19 @@ _cached = {}
 class ApartmentsDB:
 
     def __init__(self):
-        self.Address         = None
-        self.Cost            = None
-        self.Area            = None
-        self.Rooms           = None
-        self.Area            = None
-        self.LivingArea      = None
-        self.KitchenArea     = None
-        self.Floor           = None
-        self.Floors          = None
-        self.CeilingHeight   = None
-        self.BuildingType    = None
-        self.Condition       = None
-        self.WallsMaterial   = None
-        self.Balconies       = None
-        self.material        = None
+        self.address         = None
+        self.cost            = None
+        self.area            = None
+        self.rooms           = None
+        self.living_area      = None
+        self.kitchen_area     = None
+        self.floor           = None
+        self.floors          = None
+        self.ceiling_height   = None
+        self.building_type    = None
+        self.conditions       = None
+        self.walls_material   = None
+        self.balconies       = None
 
     def connect(self):
         if 'ApartmentsInfo.db' in _cached:

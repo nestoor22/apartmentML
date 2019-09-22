@@ -2,16 +2,18 @@ import os
 import re
 import json
 import gmaps
+import googlemaps
 import mtranslate
 
 list_of_links = json.load(open('info.json'))
 
-api = gmaps.Directions(api_key='')   # Your api here
+gmaps.configure(api_key='AIzaSyCs6bbRbEjmCbKnihNcL5jxQeZ0-D9mj4c')   # Your api here
+api = googlemaps.Client(key='AIzaSyCs6bbRbEjmCbKnihNcL5jxQeZ0-D9mj4c')
 
-translate_dict = {'Ціна': 'Cost', 'Ціна $': 'Cost $', 'Адреса': 'Address', 'Кімнат': 'Rooms', 'Поверх': 'Floor',
-                  'Житлова площа': 'LivingArea', 'Загальна площа': 'Area', 'Площа кухні': 'KitchenArea',
-                  'Поверховість': 'Floors', 'Висота стелі': 'CeilingHeight', 'Балконів': 'Balconies',
-                  'Матеріал стін': 'WallsMaterial', 'Стан': 'Condition', 'Тип будівлі': 'BuildingType'}
+translate_dict = {'Ціна': 'cost', 'Ціна $': 'cost $', 'Адреса': 'address', 'Кімнат': 'rooms', 'Поверх': 'floor',
+                  'Житлова площа': 'living_area', 'Загальна площа': 'area', 'Площа кухні': 'kitchen_area',
+                  'Поверховість': 'floors', 'Висота стелі': 'ceiling_height', 'Балконів': 'balconies',
+                  'Матеріал стін': 'walls_material', 'Стан': 'conditions', 'Тип будівлі': 'building_type'}
 
 cashed = {}
 useless_keys = ['Площа ділянки', 'Днів на сайті', 'Код', 'Оновлено']
@@ -47,7 +49,7 @@ def create_list_of_dicts():
             key = re.findall(r"[\w\s$]+", i)
             value = re.findall(r"\s[\d]+[.]?[\s]?[\d]*[\s]?[\d]*[\sгрн]*[/м]*[$]?", i)
 
-            if len(key) > 0 and key[0] == 'Address':
+            if len(key) > 0 and key[0] == 'address':
                 value = re.findall(r":[\w\s.,\d]+", i)
                 result_dict[key[0]] = value[0].rstrip().replace(': ', '')
 
@@ -75,11 +77,11 @@ def create_json_for_db():
 
         for key in keys:
             if 'грн/м' in info_dt[key]:
-                result_dict['Cost'] = int(info_dt['Ціна $'].replace('$', '').replace(' ', '')) * \
+                result_dict['cost'] = int(info_dt['Ціна $'].replace('$', '').replace(' ', '')) * \
                                       int(float(info_dt['Загальна площа']))
 
             elif key == 'Ціна':
-                result_dict['Cost'] = int(info_dt['Ціна $'].replace('$', '').replace(' ', ''))
+                result_dict['cost'] = int(info_dt['Ціна $'].replace('$', '').replace(' ', ''))
 
             elif key == 'Ціна $':
                 continue
@@ -89,7 +91,7 @@ def create_json_for_db():
 
             elif key == 'Висота стелі':
                 result_dict[translate_dict[key]] = info_dt[key].replace('h', '').replace('N', '')\
-                    .replace(' ', '').replace('/','')
+                    .replace(' ', '').replace('/', '').replace('m', '').replace('м', '')
 
             else:
                 if info_dt[key] not in cashed and key in translate_dict:
@@ -100,7 +102,7 @@ def create_json_for_db():
 
                         cashed[info_dt[key]] = float(mtranslate.translate(info_dt[key], 'en').replace(' м', '')
                                                      .replace('\xa0', '').replace(' m', '').replace('м', ''))
-                    except ValueError:
+                    except ValueError or Exception:
                         result_dict[translate_dict[key]] = mtranslate.translate(info_dt[key], 'en').replace('\xa0', '')
                         cashed[info_dt[key]] = mtranslate.translate(info_dt[key], 'en').replace('\xa0', '')
                 elif key in translate_dict:
@@ -115,17 +117,17 @@ def create_json_for_db():
     for info_dt in json_for_db:
 
         for key in info_dt:
-
-            if key == 'Address':
+            print(key)
+            if key == 'address':
                 try:
-                    info_dt['DistanceToCenter'] = float(api.directions(info_dt[key], 'Львів Оперний театр')[0]['legs']
+                    info_dt['distance_to_center'] = float(api.directions(info_dt[key], 'Львів Оперний театр')[0]['legs']
                                                         [0]['distance']['text'].replace(' km', ''))
                     info_dt.pop(key)
                     print('Save distance')
 
                 except Exception:
                     print('Distance error')
-                    info_dt['DistanceToCenter'] = 0.0
+                    info_dt['distance_to_center'] = 0.0
                     info_dt.pop(key)
                     continue
 
@@ -135,7 +137,7 @@ def create_json_for_db():
     with open('info_to_db.json', 'w') as json_file:
         json.dump(result, json_file, ensure_ascii=False)
 
-    os.remove('info.json')
-    os.remove('pages_link.json')
+    # os.remove('info.json')
+    # os.remove('pages_link.json')
     return 1
 
