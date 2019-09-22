@@ -89,9 +89,6 @@ def rescale_data(loaded_dataset):
 
     rescaled_dataset = pd.concat([dataset_with_numeric_columns, dataset_with_label_columns], axis=1)
 
-    with open('transformers_for_apartment_dataset', 'wb') as f:
-        joblib.dump(information_about_transformers, f)
-
     return rescaled_dataset
 
 
