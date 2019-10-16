@@ -117,14 +117,12 @@ def create_json_for_db():
     for info_dt in json_for_db:
 
         for key in info_dt:
-            print(key)
             if key == 'address':
                 try:
                     info_dt['distance_to_center'] = float(api.directions(info_dt[key], 'Львів Оперний театр')[0]['legs']
                                                         [0]['distance']['text'].replace(' km', ''))
                     info_dt.pop(key)
                     print('Save distance')
-
                 except Exception:
                     print('Distance error')
                     info_dt['distance_to_center'] = 0.0
@@ -132,12 +130,11 @@ def create_json_for_db():
                     continue
 
         result.append(info_dt)
-        print(len(result))
 
     with open('info_to_db.json', 'w') as json_file:
         json.dump(result, json_file, ensure_ascii=False)
 
-    # os.remove('info.json')
-    # os.remove('pages_link.json')
+    os.remove('info.json')
+    os.remove('pages_link.json')
     return 1
 
