@@ -5,7 +5,7 @@ import gmaps
 import googlemaps
 import mtranslate
 
-list_of_links = json.load(open('info.json'))
+information_about_apartments_in_lviv = json.load(open('lviv_info.json'))
 
 gmaps.configure(api_key='AIzaSyCs6bbRbEjmCbKnihNcL5jxQeZ0-D9mj4c')   # Your api here
 api = googlemaps.Client(key='AIzaSyCs6bbRbEjmCbKnihNcL5jxQeZ0-D9mj4c')
@@ -23,10 +23,10 @@ def refactor_string_from_file_with_scrapped_data():
 
     list_of_lists_with_info = []
 
-    for i in range(len(list_of_links)):
+    for i in range(len(information_about_apartments_in_lviv)):
         string_with_info = 'Адреса: '
-        string_with_info = string_with_info + ''.join(list_of_links[i]['Address'])
-        string_with_info += ''.join(list_of_links[i]['info'])
+        string_with_info = string_with_info + ''.join(information_about_apartments_in_lviv[i]['Address'])
+        string_with_info += ''.join(information_about_apartments_in_lviv[i]['info'])
 
         changed_info_string = re.sub(r'\\n|\s\s+', '&', string_with_info)
         changed_info_string = re.sub('&&', '&', changed_info_string)

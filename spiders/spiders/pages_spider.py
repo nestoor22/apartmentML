@@ -1,8 +1,8 @@
 import scrapy
 
 
-class PageSpider(scrapy.Spider):
-    name = "apartment_links"
+class LvivPageSpider(scrapy.Spider):
+    name = "apartment_links_in_lviv"
 
     def start_requests(self):
         urls = [

@@ -1,6 +1,5 @@
 import os
 
-
 def run_spiders():
-    os.system('scrapy crawl apartment_links -o pages_link.json && scrapy crawl get_apartment_info -o info.json')
+    os.system('scrapy crawl apartment_links_in_lviv -o lviv_pages_link.json && scrapy crawl get_apartment_info_in_lviv -o lviv_info.json')
 

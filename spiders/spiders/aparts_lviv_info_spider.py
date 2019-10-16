@@ -2,8 +2,8 @@ import scrapy
 import json
 
 
-class InfoScrapper(scrapy.Spider):
-    name = 'get_apartment_info'
+class LvivInfoScrapper(scrapy.Spider):
+    name = 'get_apartment_info_in_lviv'
 
     def start_requests(self):
         pages_json = json.load(open('pages_link.json'))
