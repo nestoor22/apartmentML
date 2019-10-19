@@ -54,4 +54,5 @@ class KyivInfoScrapper(scrapy.Spider):
             if 'К-сть кімнат/Розташування:' in properties:
                 properties.pop(properties.index('К-сть кімнат/Розташування:'))
             info_dict.update({'info': dict(zip(properties, values))})
-            yield info_dict
+            if info_dict['info']:
+                yield info_dict
