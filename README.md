@@ -18,3 +18,5 @@ Run main.py
 All data saves to ApartmentsInfo.db
 
 Wait =)
+
+After all process related to collecting and preparing data, system will run training for models. Models will be saved in models folder.
