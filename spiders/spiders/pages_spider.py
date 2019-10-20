@@ -8,6 +8,7 @@ class LvivPageSpider(scrapy.Spider):
         urls = [
             'https://www.real-estate.lviv.ua/sale-kvartira/Lviv/новобудови',
             'https://www.real-estate.lviv.ua/sale-house/Lviv'
+
         ]
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)

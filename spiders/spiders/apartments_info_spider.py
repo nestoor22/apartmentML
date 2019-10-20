@@ -6,7 +6,7 @@ class LvivInfoScrapper(scrapy.Spider):
     name = 'get_apartment_info_in_lviv'
 
     def start_requests(self):
-        pages_link_in_json = json.load(open('lviv_pages_link.json'))
+        pages_link_in_json = json.load(open('lviv_apartment_page_links.json'))
 
         pages_urls = ['https://www.real-estate.lviv.ua/sale-kvartira/Lviv/новобудови']
         for link in pages_link_in_json:
@@ -32,7 +32,7 @@ class KyivInfoScrapper(scrapy.Spider):
     name = 'get_apartment_info_in_kyiv'
 
     def start_requests(self):
-        pages_link_in_json = json.load(open('apartments_links_in_kyiv.json'))
+        pages_link_in_json = json.load(open('kyiv_apartment_page_links.json'))
         pages_urls = []
         for link in pages_link_in_json:
             pages_urls.append(link['link'])
