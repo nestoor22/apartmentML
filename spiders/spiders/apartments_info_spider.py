@@ -47,12 +47,21 @@ class KyivInfoScrapper(scrapy.Spider):
                 yield scrapy.Request(url=apart_link, callback=self.parse_info)
 
     def parse_info(self, response):
+        necessary_properties = ['К-сть кімнат/Розташування', 'Площа (загальна/житлова/кухні):',
+                                'Поверх/К-сть поверхів:', 'Матеріал стін:', 'Ремонт (стан):']
         for info in response.css('div[class="object-overall"]'):
             info_dict = {'Address': info.css('div[id="object-address"] a::text').getall()}
-            properties = info.css('div[class="label"]::text').getall()[2:]
-            values = info.css('div[class="value"]::text').getall()[5:]
-            if 'К-сть кімнат/Розташування:' in properties:
-                properties.pop(properties.index('К-сть кімнат/Розташування:'))
-            info_dict.update({'info': dict(zip(properties, values))})
-            if info_dict['info']:
-                yield info_dict
+            all_necessary_info = dict()
+            all_necessary_info['rooms_info'] = info.css('div[id="object-rooms"] a::text').get() \
+                if info.css('div[id="object-rooms"] a::text').get() else None
+
+            all_necessary_info['area_info'] = info.css('div[id="object-squares"] div[class="value"]::text').get()
+
+            all_necessary_info['floors_info'] = info.css('div[id="object-floors"] div[class="value"]::text').get()
+
+            all_necessary_info['walls_material'] = info.css('div[id="object-materials"] div[class="value"]::text').get()
+
+            all_necessary_info['conditions_info'] = info.css('div[id="object-levels"] div[class="value"]::text').get()
+            if any(all_necessary_info.values()):
+                info_dict.update({'info': all_necessary_info})
+                yield all_necessary_info
