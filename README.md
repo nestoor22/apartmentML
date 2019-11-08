@@ -2,7 +2,7 @@
 
 **EXPLANATION:**
 _Use scrapping to collect data. Refactor scrapped data from website.
-Create SQLite database. Create and machine learning model_
+Create SQLite database. Create machine learning models_
 
 **How to use:**
 

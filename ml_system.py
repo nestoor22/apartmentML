@@ -46,7 +46,7 @@ class SBS:
         return X[:, self.indices_]
 
     def calc_score(self, X_train, y_train , X_test, y_test, indices):
-        self . estimator .fit(X_train[:, indices], y_train)
+        self.estimator.fit(X_train[:, indices], y_train)
         y_pred = self.estimator.predict(X_test[:, indices])
         score = self.scoring(y_test, y_pred)
         return score
