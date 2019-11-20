@@ -96,17 +96,15 @@ def create_json_for_db():
             else:
                 if info_dt[key] not in cashed and key in translate_dict:
                     try:
-                        result_dict[translate_dict[key]] = float(mtranslate.translate(info_dt[key], 'en')
-                                                                 .replace('m', '').replace('\xa0', '')
-                                                                 .replace(' m', '').replace('м', ''))
+                        result_dict[translate_dict[key]] = mtranslate.translate(info_dt[key], 'en')
+                        cashed[info_dt[key]] = result_dict[translate_dict[key]]
 
-                        cashed[info_dt[key]] = float(mtranslate.translate(info_dt[key], 'en').replace(' м', '')
-                                                     .replace('\xa0', '').replace(' m', '').replace('м', ''))
-                    except ValueError or Exception:
-                        result_dict[translate_dict[key]] = mtranslate.translate(info_dt[key], 'en').replace('\xa0', '')
-                        cashed[info_dt[key]] = mtranslate.translate(info_dt[key], 'en').replace('\xa0', '')
+                    except Exception as error:
+                        print(error)
+
                 elif key in translate_dict:
                     result_dict[translate_dict[key]] = cashed[info_dt[key]]
+
                 print('Translate one')
 
         json_for_db.append(result_dict)
@@ -138,3 +136,5 @@ def create_json_for_db():
     os.remove('pages_link.json')
     return 1
 
+
+create_json_for_db()
