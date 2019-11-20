@@ -5,17 +5,17 @@ def start_scrapping():
 
 
 def insert_data_to_json():
-    from refactor_json_files import create_json_for_db as data_to_json
+    from clean_json_files.refactor_json_files import create_json_for_db as data_to_json
     data_to_json()
 
 
 def create_sql_database():
-    from download_apartments_db import load_apartments_info_to_db as data_to_db
+    from db_work.download_apartments_db import load_apartments_info_to_db as data_to_db
     data_to_db()
 
 
 def work_with_data():
-    from work_with_data import change_building_types, fill_absent_data_and_remove_incorrect
+    from db_work.work_with_data import change_building_types, fill_absent_data_and_remove_incorrect
     fill_absent_data_and_remove_incorrect()
     change_building_types()
 

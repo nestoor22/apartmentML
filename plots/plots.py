@@ -2,7 +2,7 @@ import sqlite3
 import pandas as pd
 import matplotlib.pyplot as plt
 
-original_dataset = pd.read_sql('SELECT * FROM apartment_info', sqlite3.connect('ApartmentsInfo.db'))
+original_dataset = pd.read_sql('SELECT * FROM apartment_info', sqlite3.connect('../db_work/ApartmentsInfo.db'))
 original_dataset["ceiling_height"] = pd.to_numeric(original_dataset['ceiling_height'])
 
 apartment_data_frame = original_dataset

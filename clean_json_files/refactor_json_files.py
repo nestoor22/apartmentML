@@ -5,18 +5,18 @@ import gmaps
 import googlemaps
 import mtranslate
 
-information_about_apartments_in_lviv = json.load(open('lviv_info.json'))
+information_about_apartments_in_lviv = json.load(open('../json_files/lviv_info.json'))
 
 gmaps.configure(api_key='AIzaSyCs6bbRbEjmCbKnihNcL5jxQeZ0-D9mj4c')   # Your api here
 api = googlemaps.Client(key='AIzaSyCs6bbRbEjmCbKnihNcL5jxQeZ0-D9mj4c')
 
-translate_dict = {'Ціна': 'cost', 'Ціна $': 'cost $', 'Адреса': 'address', 'Кімнат': 'rooms', 'Поверх': 'floor',
+TRANSLATE_DICT = {'Ціна': 'cost', 'Ціна $': 'cost $', 'Адреса': 'address', 'Кімнат': 'rooms', 'Поверх': 'floor',
                   'Житлова площа': 'living_area', 'Загальна площа': 'area', 'Площа кухні': 'kitchen_area',
                   'Поверховість': 'floors', 'Висота стелі': 'ceiling_height', 'Балконів': 'balconies',
                   'Матеріал стін': 'walls_material', 'Стан': 'conditions', 'Тип будівлі': 'building_type'}
 
-cashed = {}
-useless_keys = ['Площа ділянки', 'Днів на сайті', 'Код', 'Оновлено']
+CASHED = {}
+USELESS_KEYS = ['Площа ділянки', 'Днів на сайті', 'Код', 'Оновлено']
 
 
 def refactor_string_from_file_with_scrapped_data():
@@ -37,7 +37,7 @@ def refactor_string_from_file_with_scrapped_data():
     return list_of_lists_with_info
 
 
-def create_list_of_dicts():
+def create_list_with_apartments_information():
 
     list_of_lists_with_info = refactor_string_from_file_with_scrapped_data()
     result = []
@@ -67,13 +67,13 @@ def create_list_of_dicts():
 
 def create_json_for_db():
     json_for_db = []
-    list_of_dicts = create_list_of_dicts()
+    list_of_dicts = create_list_with_apartments_information()
 
-    print('List of dict with scrapped data created')
+    print('List of dict with apartments data created')
 
     for info_dt in list_of_dicts:
         result_dict = {}
-        keys = [key for key in info_dt.keys() if key not in useless_keys]
+        keys = [key for key in info_dt.keys() if key not in USELESS_KEYS]
 
         for key in keys:
             if 'грн/м' in info_dt[key]:
@@ -87,23 +87,23 @@ def create_json_for_db():
                 continue
 
             elif key == 'Адреса':
-                result_dict[translate_dict[key]] = info_dt[key]
+                result_dict[TRANSLATE_DICT[key]] = info_dt[key]
 
             elif key == 'Висота стелі':
-                result_dict[translate_dict[key]] = info_dt[key].replace('h', '').replace('N', '')\
+                result_dict[TRANSLATE_DICT[key]] = info_dt[key].replace('h', '').replace('N', '')\
                     .replace(' ', '').replace('/', '').replace('m', '').replace('м', '')
 
             else:
-                if info_dt[key] not in cashed and key in translate_dict:
+                if info_dt[key] not in CASHED and key in TRANSLATE_DICT:
                     try:
-                        result_dict[translate_dict[key]] = mtranslate.translate(info_dt[key], 'en')
-                        cashed[info_dt[key]] = result_dict[translate_dict[key]]
+                        result_dict[TRANSLATE_DICT[key]] = mtranslate.translate(info_dt[key], 'en')
+                        CASHED[info_dt[key]] = result_dict[TRANSLATE_DICT[key]]
 
                     except Exception as error:
                         print(error)
 
-                elif key in translate_dict:
-                    result_dict[translate_dict[key]] = cashed[info_dt[key]]
+                elif key in TRANSLATE_DICT:
+                    result_dict[TRANSLATE_DICT[key]] = CASHED[info_dt[key]]
 
                 print('Translate one')
 
@@ -132,8 +132,8 @@ def create_json_for_db():
     with open('info_to_db.json', 'w') as json_file:
         json.dump(result, json_file, ensure_ascii=False)
 
-    os.remove('info.json')
-    os.remove('pages_link.json')
+    os.remove('lviv_info.json')
+    os.remove('lviv_pages_link.json')
     return 1
 
 
