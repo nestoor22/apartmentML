@@ -5,7 +5,7 @@ def start_scrapping():
 
 
 def insert_data_to_json():
-    from clean_json_files.refactor_json_files import create_json_for_db as data_to_json
+    from clean_json_files.prepare_data_about_lviv_apartments import create_json_for_db as data_to_json
     data_to_json()
 
 

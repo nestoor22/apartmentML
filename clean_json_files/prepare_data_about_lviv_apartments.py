@@ -129,11 +129,11 @@ def create_json_for_db():
 
         result.append(info_dt)
 
-    with open('info_to_db.json', 'w') as json_file:
+    with open('lviv_info_to_db.json', 'w') as json_file:
         json.dump(result, json_file, ensure_ascii=False)
 
     os.remove('lviv_info.json')
-    os.remove('lviv_pages_link.json')
+    os.remove('lviv_apartment_page_links.json')
     return 1
 
 

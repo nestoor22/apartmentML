@@ -47,21 +47,21 @@ class KyivInfoScrapper(scrapy.Spider):
                 yield scrapy.Request(url=apart_link, callback=self.parse_info)
 
     def parse_info(self, response):
-        necessary_properties = ['К-сть кімнат/Розташування', 'Площа (загальна/житлова/кухні):',
-                                'Поверх/К-сть поверхів:', 'Матеріал стін:', 'Ремонт (стан):']
+        info_dict = {'Cost': response.css('div[class="currency"] div[class="value"]::text').get().strip()}
+
         for info in response.css('div[class="object-overall"]'):
-            info_dict = {'Address': info.css('div[id="object-address"] a::text').getall()}
-            all_necessary_info = dict()
-            all_necessary_info['rooms_info'] = info.css('div[id="object-rooms"] a::text').get() \
+            all_address_part = info.css('div[id="object-address"] a::text').getall()
+            info_dict['Address'] = f'{all_address_part[0]}, {all_address_part[1]}, {all_address_part[-1]}'
+
+            info_dict['rooms_info'] = info.css('div[id="object-rooms"] a::text').get() \
                 if info.css('div[id="object-rooms"] a::text').get() else None
 
-            all_necessary_info['area_info'] = info.css('div[id="object-squares"] div[class="value"]::text').get()
+            info_dict['area_info'] = info.css('div[id="object-squares"] div[class="value"]::text').get()
 
-            all_necessary_info['floors_info'] = info.css('div[id="object-floors"] div[class="value"]::text').get()
+            info_dict['floors_info'] = info.css('div[id="object-floors"] div[class="value"]::text').get()
 
-            all_necessary_info['walls_material'] = info.css('div[id="object-materials"] div[class="value"]::text').get()
+            info_dict['walls_material'] = info.css('div[id="object-materials"] div[class="value"]::text').get()
 
-            all_necessary_info['conditions_info'] = info.css('div[id="object-levels"] div[class="value"]::text').get()
-            if any(all_necessary_info.values()):
-                info_dict.update({'info': all_necessary_info})
-                yield all_necessary_info
+            info_dict['conditions_info'] = info.css('div[id="object-levels"] div[class="value"]::text').get()
+
+            yield info_dict
