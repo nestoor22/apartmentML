@@ -118,7 +118,7 @@ def create_json_for_db():
             if key == 'address':
                 try:
                     info_dt['distance_to_center'] = float(api.directions(info_dt[key], 'Львів Оперний театр')[0]['legs']
-                                                        [0]['distance']['text'].replace(' km', ''))
+                                                          [0]['distance']['text'].replace(' km', ''))
                     info_dt.pop(key)
                     print('Save distance')
                 except Exception:
