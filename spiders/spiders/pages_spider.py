@@ -40,6 +40,6 @@ class KyivPageScrapper(scrapy.Spider):
             if page_link.css('a[rel="next"]::attr(href)').get() is not None and not i:
                 i = 1
                 yield {'link': page_link.css('a[rel="next"]::attr(href)').get()}
-        next_page = response.css('li[class="pager-item pager-next"] a::attr(href)')
+        next_page = response.css('li[class="pager-item pager-next"] a::attr(href)').get()
         if next_page is not None:
-            yield scrapy.Request(url=next_page.get(), callback=self.parse)
+            yield scrapy.Request(url=next_page, callback=self.parse)
