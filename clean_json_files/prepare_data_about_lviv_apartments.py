@@ -1,14 +1,10 @@
 import os
 import re
 import json
-import gmaps
-import googlemaps
 import mtranslate
+from helpers import get_distance
 
-information_about_apartments_in_lviv = json.load(open('../json_files/lviv_info.json'))
-
-gmaps.configure(api_key='AIzaSyCs6bbRbEjmCbKnihNcL5jxQeZ0-D9mj4c')   # Your api here
-api = googlemaps.Client(key='AIzaSyCs6bbRbEjmCbKnihNcL5jxQeZ0-D9mj4c')
+information_about_apartments = json.load(open('../json_files/lviv_info.json'))
 
 TRANSLATE_DICT = {'Ціна': 'cost', 'Ціна $': 'cost $', 'Адреса': 'address', 'Кімнат': 'rooms', 'Поверх': 'floor',
                   'Житлова площа': 'living_area', 'Загальна площа': 'area', 'Площа кухні': 'kitchen_area',
@@ -23,10 +19,10 @@ def refactor_string_from_file_with_scrapped_data():
 
     list_of_lists_with_info = []
 
-    for i in range(len(information_about_apartments_in_lviv)):
+    for i in range(len(information_about_apartments)):
         string_with_info = 'Адреса: '
-        string_with_info = string_with_info + ''.join(information_about_apartments_in_lviv[i]['Address'])
-        string_with_info += ''.join(information_about_apartments_in_lviv[i]['info'])
+        string_with_info = string_with_info + ''.join(information_about_apartments[i]['Address'])
+        string_with_info += ''.join(information_about_apartments[i]['info'])
 
         changed_info_string = re.sub(r'\\n|\s\s+', '&', string_with_info)
         changed_info_string = re.sub('&&', '&', changed_info_string)
@@ -116,16 +112,8 @@ def create_json_for_db():
 
         for key in info_dt:
             if key == 'address':
-                try:
-                    info_dt['distance_to_center'] = float(api.directions(info_dt[key], 'Львів Оперний театр')[0]['legs']
-                                                          [0]['distance']['text'].replace(' km', ''))
-                    info_dt.pop(key)
-                    print('Save distance')
-                except Exception:
-                    print('Distance error')
-                    info_dt['distance_to_center'] = 0.0
-                    info_dt.pop(key)
-                    continue
+                info_dt['distance_to_center'] = get_distance(info_dt[key], 'Львів Оперний театр')
+                info_dt.pop(key)
 
         result.append(info_dt)
 

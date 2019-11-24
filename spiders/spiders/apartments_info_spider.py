@@ -47,7 +47,8 @@ class KyivInfoScrapper(scrapy.Spider):
                 yield scrapy.Request(url=apart_link, callback=self.parse_info)
 
     def parse_info(self, response):
-        info_dict = {'Cost': response.css('div[class="currency"] div[class="value"]::text').get().strip()}
+        info_dict = {'Cost': int(response.css('div[class="currency"] '
+                                              'div[class="value"]::text').get().replace('$', '').replace(' ', ''))}
 
         for info in response.css('div[class="object-overall"]'):
             all_address_part = info.css('div[id="object-address"] a::text').getall()
