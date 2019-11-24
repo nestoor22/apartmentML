@@ -47,12 +47,12 @@ class KyivInfoScrapper(scrapy.Spider):
                 yield scrapy.Request(url=apart_link, callback=self.parse_info)
 
     def parse_info(self, response):
-        info_dict = {'Cost': int(response.css('div[class="currency"] '
+        info_dict = {'cost': int(response.css('div[class="currency"] '
                                               'div[class="value"]::text').get().replace('$', '').replace(' ', ''))}
 
         for info in response.css('div[class="object-overall"]'):
             all_address_part = info.css('div[id="object-address"] a::text').getall()
-            info_dict['Address'] = f'{all_address_part[0]}, {all_address_part[1]}, {all_address_part[-1]}'
+            info_dict['address'] = f'{all_address_part[0]}, {all_address_part[1]}, {all_address_part[-1]}'
 
             info_dict['rooms_info'] = info.css('div[id="object-rooms"] a::text').get() \
                 if info.css('div[id="object-rooms"] a::text').get() else None
@@ -63,6 +63,6 @@ class KyivInfoScrapper(scrapy.Spider):
 
             info_dict['walls_material'] = info.css('div[id="object-materials"] div[class="value"]::text').get()
 
-            info_dict['conditions_info'] = info.css('div[id="object-levels"] div[class="value"]::text').get()
+            info_dict['conditions'] = info.css('div[id="object-levels"] div[class="value"]::text').get()
 
             yield info_dict

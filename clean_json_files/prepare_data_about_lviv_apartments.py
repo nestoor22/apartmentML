@@ -3,6 +3,7 @@ import re
 import json
 import mtranslate
 from helpers import get_distance
+from db_work.download_apartments_db import load_apartments_info_to_db
 
 information_about_apartments = json.load(open('../json_files/lviv_info.json'))
 
@@ -117,8 +118,7 @@ def create_json_for_db():
 
         result.append(info_dt)
 
-    with open('lviv_info_to_db.json', 'w') as json_file:
-        json.dump(result, json_file, ensure_ascii=False)
+    load_apartments_info_to_db(data_to_db=result)
 
     os.remove('lviv_info.json')
     os.remove('lviv_apartment_page_links.json')
