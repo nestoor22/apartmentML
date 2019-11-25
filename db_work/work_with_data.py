@@ -28,13 +28,18 @@ def fill_absent_data_and_remove_incorrect():
 
     for column_name in apartment_data_frame:
         for row in range(number_of_rows):
-            if column_name == 'living_area' and pd.isna(apartment_data_frame['kitchen_area'][row]):
-                apartment_data_frame[column_name][row] = float('{:.3f}'.format(apartment_data_frame['area'][row]*0.35))
-                apartment_data_frame['kitchen_area'][row] = float('{:.3f}'.format(apartment_data_frame['area'][row]*0.2))
+            if column_name == 'area':
+                if apartment_data_frame['living_area'][row]:
+                    apartment_data_frame['kitchen_area'][row] = float('{:.3f}'.format((apartment_data_frame['area'][row]
+                                                                                      - apartment_data_frame['living_area'][row]) * 0.9))
+                else:
+                    apartment_data_frame['kitchen_area'][row] = float('{:.3f}'.format(apartment_data_frame['area'][row] * 0.2))
 
-            elif column_name == 'living_area' and float(apartment_data_frame['kitchen_area'][row]):
-                apartment_data_frame[column_name][row] = float('{:.3f}'.format((apartment_data_frame['area'][row] -
-                                                                                apartment_data_frame['kitchen_area'][row]) * 0.6))
+                if not apartment_data_frame['living_area'][row]:
+                    apartment_data_frame['living_area'][row] = float('{:.3f}'.format(apartment_data_frame['area'][row] * 0.6))
+
+                if not apartment_data_frame['kitchen_area'][row]:
+                    apartment_data_frame['kitchen_area'][row] = float('{:.3f}'.format(apartment_data_frame['area'][row] * 0.2))
 
             elif column_name == 'walls_material' and pd.isna(apartment_data_frame[column_name][row]):
                 apartment_data_frame[column_name][row] = 'unknown'
@@ -78,3 +83,6 @@ def change_building_types():
 
     database_connect.cursor().execute("""DELETE FROM apartment_info WHERE building_type='Part of the house'""")
     database_connect.commit()
+
+
+fill_absent_data_and_remove_incorrect()
