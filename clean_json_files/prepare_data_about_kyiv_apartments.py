@@ -23,10 +23,10 @@ def create_json_for_db():
             elif key == 'rooms_info':
                 number_of_rooms = re.match(r'[\d]', value)
                 if number_of_rooms:
-                    apartment_info['rooms'] = re.match('[\d]', value).group()
+                    apartment_info['rooms'] = int(number_of_rooms.group())
 
             elif key == 'area_info':
-                areas_info = value.split('/')
+                areas_info = [float(area) for area in value.split('/')]
                 areas_info_length = len(areas_info)
                 if areas_info_length == 1:
                     apartment_info['area'] = areas_info[0]
@@ -36,11 +36,14 @@ def create_json_for_db():
                     apartment_info['area'], apartment_info['living_area'], apartment_info['kitchen_area'] = areas_info
 
                 if 'area' in apartment_info:
-                    apartment_info['square_meter_cost'] = info_dict['cost'] / apartment_info['area']
+                    apartment_info['square_meter_cost'] = round(info_dict['cost'] / apartment_info['area'], 2)
 
             elif key == 'floors_info':
                 if value:
-                    floors_info = value.split('/')
+                    try:
+                        floors_info = [int(floor) for floor in value.split('/')]
+                    except Exception:
+                        continue
                     floors_info_length = len(floors_info)
                     if floors_info_length == 1:
                         apartment_info['floor'] = floors_info[0]
@@ -49,8 +52,8 @@ def create_json_for_db():
 
             elif key in ['conditions', 'walls_material']:
                 if value and value not in CASHED:
-                    apartment_info[key] = mtranslate.translate(value, 'en')
-                    CASHED[value] = apartment_info['conditions']
+                    apartment_info[key] = mtranslate.translate(value, 'en').lower()
+                    CASHED[value] = apartment_info[key]
 
                 elif value in CASHED:
                     apartment_info[key] = CASHED[value]
@@ -60,6 +63,12 @@ def create_json_for_db():
 
         apartment_info['building_type'] = 'New building'
         result.append(apartment_info)
+        print(apartment_info)
+
+    load_apartments_info_to_db(data_to_db=result)
+
+    os.remove('json_files/kyiv_info.json')
+    os.remove('json_files/kyiv_apartment_page_links.json')
 
 
 create_json_for_db()

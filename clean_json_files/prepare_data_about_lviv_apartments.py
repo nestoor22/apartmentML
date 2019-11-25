@@ -120,8 +120,8 @@ def create_json_for_db():
 
     load_apartments_info_to_db(data_to_db=result)
 
-    os.remove('lviv_info.json')
-    os.remove('lviv_apartment_page_links.json')
+    os.remove('json_files/lviv_info.json')
+    os.remove('json_files/lviv_apartment_page_links.json')
     return 1
 
 
