@@ -35,9 +35,6 @@ def create_json_for_db():
                 elif areas_info_length == 3:
                     apartment_info['area'], apartment_info['living_area'], apartment_info['kitchen_area'] = areas_info
 
-                if 'area' in apartment_info:
-                    apartment_info['square_meter_cost'] = round(info_dict['cost'] / apartment_info['area'], 2)
-
             elif key == 'floors_info':
                 if value:
                     try:
@@ -62,13 +59,13 @@ def create_json_for_db():
                 apartment_info['distance_to_center'] = get_distance(value, 'Майдан Незалежності, Київ')
 
         apartment_info['building_type'] = 'New building'
+        apartment_info['city'] = 'Kyiv'
+
         result.append(apartment_info)
         print(apartment_info)
 
     load_apartments_info_to_db(data_to_db=result)
 
-    os.remove('json_files/kyiv_info.json')
-    os.remove('json_files/kyiv_apartment_page_links.json')
+    os.remove('../json_files/kyiv_info.json')
+    os.remove('../json_files/kyiv_apartment_page_links.json')
 
-
-create_json_for_db()

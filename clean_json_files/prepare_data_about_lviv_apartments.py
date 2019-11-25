@@ -9,7 +9,7 @@ information_about_apartments = json.load(open('../json_files/lviv_info.json'))
 
 TRANSLATE_DICT = {'Ціна': 'cost', 'Ціна $': 'cost $', 'Адреса': 'address', 'Кімнат': 'rooms', 'Поверх': 'floor',
                   'Житлова площа': 'living_area', 'Загальна площа': 'area', 'Площа кухні': 'kitchen_area',
-                  'Поверховість': 'floors', 'Висота стелі': 'ceiling_height', 'Балконів': 'balconies',
+                  'Поверховість': 'floors', 'Балконів': 'balconies',
                   'Матеріал стін': 'walls_material', 'Стан': 'conditions', 'Тип будівлі': 'building_type'}
 
 CASHED = {}
@@ -86,10 +86,6 @@ def create_json_for_db():
             elif key == 'Адреса':
                 result_dict[TRANSLATE_DICT[key]] = info_dt[key]
 
-            elif key == 'Висота стелі':
-                result_dict[TRANSLATE_DICT[key]] = info_dt[key].replace('h', '').replace('N', '')\
-                    .replace(' ', '').replace('/', '').replace('m', '').replace('м', '')
-
             else:
                 if info_dt[key] not in CASHED and key in TRANSLATE_DICT:
                     try:
@@ -115,6 +111,7 @@ def create_json_for_db():
             if key == 'address':
                 info_dt['distance_to_center'] = get_distance(info_dt[key], 'Львів Оперний театр')
                 info_dt.pop(key)
+        info_dt['city'] = 'Lviv'
 
         result.append(info_dt)
 

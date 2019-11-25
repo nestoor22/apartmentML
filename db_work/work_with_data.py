@@ -65,7 +65,7 @@ def fill_absent_data_and_remove_incorrect():
 
     database_connect.execute('DROP TABLE apartment_info')
     database_connect.commit()
-    apartment_data_frame.to_sql('apartment_info', database_connect)
+    apartment_data_frame.to_sql('apartment_info', database_connect, index=False)
     remove_low_cost()
     remove_too_big_area()
     remove_incorrect_ceiling_height()
@@ -78,6 +78,3 @@ def change_building_types():
 
     database_connect.cursor().execute("""DELETE FROM apartment_info WHERE building_type='Part of the house'""")
     database_connect.commit()
-
-
-change_building_types()

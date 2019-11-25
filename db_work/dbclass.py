@@ -1,6 +1,9 @@
+import os
 import sqlite3
 
 _cached = {}
+
+db_file_folder = os.path.dirname(os.path.abspath(__file__))
 
 
 class ApartmentsDB:
@@ -14,18 +17,19 @@ class ApartmentsDB:
         self.kitchen_area = None
         self.floor = None
         self.floors = None
-        self.ceiling_height = None
         self.building_type = None
         self.conditions = None
         self.walls_material = None
         self.balconies = None
+        self.city = None
 
     @staticmethod
     def connect():
-        if 'ApartmentsInfo.db' in _cached:
-            return _cached['ApartmentsInfo.db']
+        if db_file_folder + '/ApartmentsInfo.db' in _cached:
+            return _cached[db_file_folder + '/ApartmentsInfo.db']
         else:
-            return sqlite3.connect('ApartmentsInfo.db')
+            _cached[db_file_folder + '/ApartmentsInfo.db'] = sqlite3.connect(db_file_folder + '/ApartmentsInfo.db')
+            return _cached[db_file_folder + '/ApartmentsInfo.db']
 
     @staticmethod
     def get_field_type(v):
@@ -156,6 +160,7 @@ class ApartmentsDB:
             ",".join(fields),
             ",".join(placeholders)
         )
+
         try:
             c.execute(sql, values)
         except sqlite3.OperationalError:
