@@ -83,6 +83,3 @@ def change_building_types():
 
     database_connect.cursor().execute("""DELETE FROM apartment_info WHERE building_type='Part of the house'""")
     database_connect.commit()
-
-
-fill_absent_data_and_remove_incorrect()
