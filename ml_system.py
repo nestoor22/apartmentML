@@ -10,7 +10,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, LabelEncoder
 
 
-original_dataset = pd.read_sql('SELECT * FROM apartment_info', sqlite3.connect('ApartmentsInfo.db'))\
+original_dataset = pd.read_sql('SELECT * FROM apartment_info', sqlite3.connect('../db_work/ApartmentsInfo.db'))\
     # .drop(columns=['index'])
 
 original_dataset["ceiling_height"] = pd.to_numeric(original_dataset['ceiling_height'])
@@ -45,18 +45,17 @@ def scale_label_columns(loaded_dataset):
 
     for column in loaded_dataset:
         label_to_num_transformer = LabelEncoder()
-        one_hot_transformer = OneHotEncoder()
+        # one_hot_transformer = OneHotEncoder()
 
         labels_number = label_to_num_transformer.fit_transform(loaded_dataset[column].values.reshape(-1, 1))
-        labels_to_binary = one_hot_transformer.fit_transform(labels_number.reshape(-1, 1)).toarray()
+        # labels_to_binary = one_hot_transformer.fit_transform(labels_number.reshape(-1, 1)).toarray()
 
-        one_hot_dataset = pd.DataFrame(labels_to_binary, columns=[column+'_'+str(int(i))
-                                                                  for i in range(labels_to_binary.shape[1])])
+        # one_hot_dataset = pd.DataFrame(labels_to_binary, columns=[column+'_'+str(int(i))
+        #                                                           for i in range(labels_to_binary.shape[1])])
 
-        information_about_transformers[column] = {'transformer-objects': {'OneHotTransformer': one_hot_transformer,
-                                                                          'LabelTransformer': label_to_num_transformer}}
+        information_about_transformers[column] = {'transformer-objects': {'LabelTransformer': label_to_num_transformer}}
 
-        loaded_dataset = pd.concat([loaded_dataset.drop(columns=column), one_hot_dataset], axis=1)
+        loaded_dataset[column] = labels_number
 
     return loaded_dataset
 
