@@ -3,10 +3,6 @@ import pandas as pd
 
 
 database_connect = sqlite3.connect('ApartmentsInfo.db')
-apartment_data_frame = pd.read_sql("""SELECT * FROM apartment_info""", database_connect)
-
-
-number_of_rows = len(apartment_data_frame)
 
 
 def remove_low_cost():
@@ -25,21 +21,20 @@ def remove_incorrect_ceiling_height():
 
 
 def fill_absent_data_and_remove_incorrect():
+    apartment_data_frame = pd.read_sql("""SELECT * FROM apartment_info""", database_connect)
+
+    number_of_rows = len(apartment_data_frame)
 
     for column_name in apartment_data_frame:
         for row in range(number_of_rows):
             if column_name == 'area':
-                if apartment_data_frame['living_area'][row]:
-                    apartment_data_frame['kitchen_area'][row] = float('{:.3f}'.format((apartment_data_frame['area'][row]
-                                                                                      - apartment_data_frame['living_area'][row]) * 0.9))
-                else:
-                    apartment_data_frame['kitchen_area'][row] = float('{:.3f}'.format(apartment_data_frame['area'][row] * 0.2))
+                if not apartment_data_frame['living_area'][row] or pd.isna(apartment_data_frame['living_area'][row]):
+                    apartment_data_frame['living_area'][row] = float('{:.3f}'.format(apartment_data_frame['area'][row]
+                                                                                     * 0.6))
 
-                if not apartment_data_frame['living_area'][row]:
-                    apartment_data_frame['living_area'][row] = float('{:.3f}'.format(apartment_data_frame['area'][row] * 0.6))
-
-                if not apartment_data_frame['kitchen_area'][row]:
-                    apartment_data_frame['kitchen_area'][row] = float('{:.3f}'.format(apartment_data_frame['area'][row] * 0.2))
+                if not apartment_data_frame['kitchen_area'][row] or pd.isna(apartment_data_frame['kitchen_area'][row]):
+                    apartment_data_frame['kitchen_area'][row] = float('{:.3f}'.format(apartment_data_frame['area'][row]
+                                                                                      * 0.2))
 
             elif column_name == 'walls_material' and pd.isna(apartment_data_frame[column_name][row]):
                 apartment_data_frame[column_name][row] = 'unknown'
@@ -68,9 +63,11 @@ def fill_absent_data_and_remove_incorrect():
             elif column_name == 'distance_to_center' and pd.isna(apartment_data_frame[column_name][row]):
                 apartment_data_frame[column_name][row] = 0.0
 
+    apartment_data_frame.to_json('full_db.json')
     database_connect.execute('DROP TABLE apartment_info')
     database_connect.commit()
     apartment_data_frame.to_sql('apartment_info', database_connect, index=False)
+
     remove_low_cost()
     remove_too_big_area()
     remove_incorrect_ceiling_height()

@@ -15,6 +15,7 @@ original_dataset["ceiling_height"] = pd.to_numeric(original_dataset['ceiling_hei
 
 original_dataset = original_dataset.dropna()
 
+
 class SBS:
     def __init__(self, estimator, k_features, scoring=accuracy_score, test_size=0.25, random_state=1):
         self.scoring = scoring
