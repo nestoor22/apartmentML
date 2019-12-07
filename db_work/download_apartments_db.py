@@ -1,4 +1,3 @@
-import json
 from .apartment import Apartment
 from .dbclass import ApartmentsDB
 
