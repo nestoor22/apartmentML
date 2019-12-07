@@ -5,9 +5,9 @@ from ml_system import rescale_data
 from itertools import combinations
 from sklearn.base import clone
 from sklearn.svm import SVR
+import pandas as pd
 import numpy as np
 import sqlite3
-import pandas as pd
 
 original_dataset = pd.read_sql('SELECT * FROM apartment_info', sqlite3.connect('../db_work/ApartmentsInfo.db'))\
     # .drop(columns=['index'])
@@ -64,30 +64,31 @@ class SBS:
         return score
 
 
-def select_features_for_rooms_predictions():
-    data = rescale_data(original_dataset.drop(columns='rooms'))
-    features_names = data.drop(columns='rooms').columns
+def select_features_for_class_predictions(what_predict):
+    data = rescale_data(original_dataset.drop(columns=what_predict))
+    features_names = data.drop(columns=what_predict).columns
     knn = KNeighborsClassifier(n_neighbors=2)
     sbs = SBS(knn, k_features=5, scoring=accuracy_score)
 
-    sbs.fit(data.values, original_dataset['rooms'].values)
+    sbs.fit(data.values, original_dataset[what_predict].values)
 
     most_important_features = [features_names[i] for i in sbs.result[max(sbs.result, key=sbs.result.get)]]
 
     return most_important_features
 
 
-def select_features_for_cost_predictions():
+def select_features_for_regression_predictions(what_predict):
     data = rescale_data(original_dataset)
-    features_names = data.drop(columns='cost').columns
 
-    estimator = SVR(kernel='rbf', C=1e3, gamma=0.1)
+    features_names = data.drop(columns=what_predict).columns
+
+    estimator = SVR(kernel='rbf', C=1e3, gamma=0.01)
     sbs = SBS(estimator, k_features=5)
-    sbs.fit(data.drop(columns='cost').values, data['cost'].values)
+    sbs.fit(data.drop(columns=what_predict).values, data[what_predict].values)
 
     most_important_features = [features_names[i] for i in sbs.result[max(sbs.result, key=sbs.result.get)]]
 
     return most_important_features
 
 
-select_features_for_cost_predictions()
+select_features_for_regression_predictions('cost')
