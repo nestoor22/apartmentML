@@ -23,14 +23,15 @@ class SBS:
         self.k_features = k_features
         self.test_size = test_size
         self.random_state = random_state
+        self.result = {}
 
     def fit(self, X, y):
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=self.test_size, random_state=self.random_state)
+
         dim = X_train.shape[1]
         self.indices_ = tuple(range(dim))
         self.subsets_ = [self.indices_]
-        score = self.calc_score(X_train, y_train , X_test , y_test , self.indices_)
-        self.scores = [score]
+
         while dim > self.k_features:
             scores = []
             subsets = []
@@ -38,13 +39,13 @@ class SBS:
                 score = self.calc_score(X_train, y_train, X_test, y_test, p)
                 scores.append(score)
                 subsets.append(p)
-            best = np.argmax(scores)
+
+            best = int(np.argmax(scores))
             self.indices_ = subsets[best]
-            self.subsets_.append(self.indices_)
+            self.result[scores[best]] = subsets[best]
+            print(self.result)
             dim -= 1
-            self.scores.append(scores[best])
-            print(scores)
-        self.k_score = self.scores[-1]
+
         return self
 
     def transform(self, X):
@@ -63,7 +64,9 @@ def select_features_for_rooms_predictions():
     knn = KNeighborsClassifier(n_neighbors=2)
     sbs = SBS(knn, k_features=5)
 
-    sbs.fit(data.dropna().values, original_dataset['rooms'].values)
+    sbs.fit(data.values, original_dataset['rooms'].values)
 
-    selected_features = [len(k) for k in sbs.subsets_]
+    print(sbs.result)
+
+
 select_features_for_rooms_predictions()
