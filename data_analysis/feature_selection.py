@@ -1,6 +1,7 @@
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import accuracy_score
 from ml_system import rescale_data
 from itertools import combinations
@@ -92,8 +93,8 @@ def select_features_for_regression_predictions(what_predict):
     return most_important_features
 
 
-def select_features_with_trees(what_predict):
-    data = rescale_data(original_dataset).drop(columns=what_predict)
+def select_features_for_class_prediction_with_trees(what_predict):
+    data = rescale_data(original_dataset)
 
     tree = ExtraTreesClassifier(n_estimators=15)
     tree.fit(data.values, original_dataset[what_predict].values)
@@ -108,4 +109,20 @@ def select_features_with_trees(what_predict):
     return most_important_features
 
 
-select_features_with_trees('rooms')
+def select_features_for_reg_prediction_with_trees(what_predict):
+    data = rescale_data(original_dataset)
+
+    tree = DecisionTreeRegressor()
+    tree.fit(data.drop(columns=what_predict).values, data[what_predict].values)
+    data = data.drop(columns=what_predict)
+
+    feature_importance = list(tree.feature_importances_)
+    most_important_features = []
+    for i in range(5):
+        arg_max = np.argmax(feature_importance)
+        most_important_features.append(list(data.columns).pop(arg_max))
+        feature_importance[arg_max] = 0
+
+    # ['distance_to_center', 'kitchen_area', 'area', 'living_area', 'city']
+    return most_important_features
+select_features_for_reg_prediction_with_trees('cost')
