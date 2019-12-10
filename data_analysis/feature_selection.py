@@ -18,6 +18,7 @@ original_dataset["ceiling_height"] = pd.to_numeric(original_dataset['ceiling_hei
 
 original_dataset = original_dataset.dropna()
 
+dataset_without_area_features = original_dataset.drop(columns=['living_area', 'kitchen_area'])
 
 class SBS:
     def __init__(self, estimator, k_features, scoring=None, test_size=0.25, random_state=1):
@@ -66,8 +67,8 @@ class SBS:
         return score
 
 
-def select_features_for_class_predictions(what_predict):
-    data = rescale_data(original_dataset.drop(columns=what_predict))
+def select_features_for_class_predictions(data, what_predict):
+    data = rescale_data(data.drop(columns=what_predict))
     features_names = data.drop(columns=what_predict).columns
     knn = KNeighborsClassifier(n_neighbors=2)
     sbs = SBS(knn, k_features=5, scoring=accuracy_score)
@@ -79,8 +80,8 @@ def select_features_for_class_predictions(what_predict):
     return most_important_features
 
 
-def select_features_for_regression_predictions(what_predict):
-    data = rescale_data(original_dataset)
+def select_features_for_regression_predictions(data, what_predict):
+    data = rescale_data(data)
 
     features_names = data.drop(columns=what_predict).columns
 
@@ -93,8 +94,8 @@ def select_features_for_regression_predictions(what_predict):
     return most_important_features
 
 
-def select_features_for_class_prediction_with_trees(what_predict):
-    data = rescale_data(original_dataset)
+def select_features_for_class_prediction_with_trees(data, what_predict):
+    data = rescale_data(data)
 
     tree = ExtraTreesClassifier(n_estimators=15)
     tree.fit(data.values, original_dataset[what_predict].values)
@@ -109,8 +110,8 @@ def select_features_for_class_prediction_with_trees(what_predict):
     return most_important_features
 
 
-def select_features_for_reg_prediction_with_trees(what_predict):
-    data = rescale_data(original_dataset)
+def select_features_for_reg_prediction_with_trees(data, what_predict):
+    data = rescale_data(data)
 
     tree = DecisionTreeRegressor()
     tree.fit(data.drop(columns=what_predict).values, data[what_predict].values)
@@ -123,6 +124,16 @@ def select_features_for_reg_prediction_with_trees(what_predict):
         most_important_features.append(list(data.columns).pop(arg_max))
         feature_importance[arg_max] = 0
 
-    # ['distance_to_center', 'kitchen_area', 'area', 'living_area', 'city']
     return most_important_features
-select_features_for_reg_prediction_with_trees('cost')
+
+
+def remove_highly_correlated_features():
+    correlation_matrix = original_dataset.corr()
+
+    # upper triangle of matrix
+    upper = correlation_matrix.where(np.triu(np.ones(correlation_matrix.shape), k=1).astype(np.bool))
+    columns_to_remove = [column for column in upper if any(upper[column].abs() > 0.8)]
+    return original_dataset.drop(columns=columns_to_remove)
+
+remove_highly_correlated_features()
+# print(select_features_for_regression_predictions(dataset_without_area_features, 'area'))
