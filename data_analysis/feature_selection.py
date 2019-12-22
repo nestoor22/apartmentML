@@ -20,6 +20,7 @@ original_dataset = original_dataset.dropna()
 
 dataset_without_area_features = original_dataset.drop(columns=['living_area', 'kitchen_area'])
 
+
 class SBS:
     def __init__(self, estimator, k_features, scoring=None, test_size=0.25, random_state=1):
         self.scoring = scoring
