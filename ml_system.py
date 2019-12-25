@@ -8,7 +8,10 @@ from sklearn.metrics import confusion_matrix
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, LabelEncoder
-
+from data_analysis.feature_selection import (select_features_for_class_prediction_with_trees,
+                                             select_features_for_class_predictions,
+                                             select_features_for_reg_prediction_with_trees,
+                                             select_features_for_regression_predictions)
 
 original_dataset = pd.read_sql('SELECT * FROM apartment_info', sqlite3.connect('../db_work/ApartmentsInfo.db'))\
     # .drop(columns=['index'])
@@ -41,19 +44,21 @@ def scale_numeric_columns(loaded_dataset):
     return loaded_dataset
 
 
-def scale_label_columns(loaded_dataset):
+def scale_label_columns(loaded_dataset, one_hot_using=False):
 
     for column in loaded_dataset:
         label_to_num_transformer = LabelEncoder()
-        # one_hot_transformer = OneHotEncoder()
 
         labels_number = label_to_num_transformer.fit_transform(loaded_dataset[column].values.reshape(-1, 1))
-        # labels_to_binary = one_hot_transformer.fit_transform(labels_number.reshape(-1, 1)).toarray()
 
-        # one_hot_dataset = pd.DataFrame(labels_to_binary, columns=[column+'_'+str(int(i))
-        #                                                           for i in range(labels_to_binary.shape[1])])
+        if one_hot_using:
+            one_hot_transformer = OneHotEncoder()
+            labels_to_binary = one_hot_transformer.fit_transform(labels_number.reshape(-1, 1)).toarray()
+            one_hot_dataset = pd.DataFrame(labels_to_binary, columns=[column+'_'+str(int(i))
+                                                                      for i in range(labels_to_binary.shape[1])])
+            loaded_dataset = pd.concat([loaded_dataset, one_hot_dataset], axis=1)
 
-        information_about_transformers[column] = {'transformer-objects': {'LabelTransformer': label_to_num_transformer}}
+        information_about_transformers[column] = {'transformer-object': label_to_num_transformer}
 
         loaded_dataset[column] = labels_number
 
@@ -78,11 +83,13 @@ def decode_labels(loaded_dataset, columns):
     return loaded_dataset
 
 
-def rescale_data(loaded_dataset):
+def rescale_data(loaded_dataset, one_hot_using=False):
 
     columns_with_numeric_data, columns_with_str_data = search_different_types_column(loaded_dataset)
 
-    dataset_with_label_columns = scale_label_columns(original_dataset[columns_with_str_data])
+    dataset_with_label_columns = scale_label_columns(original_dataset[columns_with_str_data],
+                                                     one_hot_using=one_hot_using)
+
     dataset_with_numeric_columns = scale_numeric_columns(original_dataset[columns_with_numeric_data])
 
     rescaled_dataset = pd.concat([dataset_with_numeric_columns, dataset_with_label_columns], axis=1)
@@ -94,7 +101,7 @@ def normalize_data(data, data_stats):
     return (data-data_stats['mean']) / data_stats['std']
 
 
-dataset = rescale_data(original_dataset)
+dataset = rescale_data(original_dataset, one_hot_using=True)
 
 
 def build_nn_model(train_input):
@@ -108,7 +115,7 @@ def build_nn_model(train_input):
     optimizer = tf.keras.optimizers.RMSprop(0.001)
     model.compile(loss='mean_squared_error',
                   optimizer=optimizer,
-                  metrics=['mean_absolute_error', 'mean_squared_error'])
+                  metrics=['accuracy', 'mean_squared_error'])
 
     return model
 
@@ -150,12 +157,11 @@ def train_model_for_area_prediction():
     normalize_test_data = normalize_data(test_input, train_stats)
 
     model = build_nn_model(train_input)
-    callback = keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+    callback = keras.callbacks.EarlyStopping(patience=10, restore_best_weights=True)
     model.fit(normalize_train_data, train_output, epochs=1000, batch_size=8,
-              validation_split=0.1, callbacks=[callback], verbose=1)
+              validation_split=0.1, callbacks=[callback])
 
     test_predictions = model.predict(normalize_test_data).flatten()
-
     test_predictions = information_about_transformers['area']['transformer-object'].\
         inverse_transform(test_predictions.reshape(-1, 1))
 
@@ -240,6 +246,8 @@ def train_decision_tree_model_for_rooms_prediction():
     accuracy = decision_tree_model.score(test_input, test_output)
 
     cm = confusion_matrix(test_output, svm_predictions)
+
+
     import pickle
     pkl_filename = "models/decision_tree_model.pkl"
     with open(pkl_filename, 'wb') as file:
