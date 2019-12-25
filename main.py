@@ -4,20 +4,17 @@ def start_scrapping():
     collect_data()
 
 
-def insert_data_to_json():
-    from clean_json_files.prepare_data_about_lviv_apartments import create_json_for_db as data_to_json
-    data_to_json()
-
-
-def create_sql_database():
-    from db_work.download_apartments_db import load_apartments_info_to_db as data_to_db
-    data_to_db()
+def save_data_to_db():
+    from clean_json_files.prepare_data_about_lviv_apartments import create_json_for_db as save_data
+    save_data()
 
 
 def work_with_data():
     from db_work.work_with_data import change_building_types, fill_absent_data_and_remove_incorrect
+    from data_analysis.plots import plot_and_save_all
     fill_absent_data_and_remove_incorrect()
     change_building_types()
+    plot_and_save_all()
 
 
 def save_trained_models():
