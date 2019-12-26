@@ -38,7 +38,7 @@ def scale_label_columns(loaded_dataset, one_hot_using=False):
         label_to_num_transformer = LabelEncoder()
 
         labels_number = label_to_num_transformer.fit_transform(loaded_dataset[column].values.reshape(-1, 1))
-
+        information_about_transformers[column] = {'transformer-objects': {'LabelTransformer': label_to_num_transformer}}
         if one_hot_using:
             one_hot_transformer = OneHotEncoder()
             labels_to_binary = one_hot_transformer.fit_transform(labels_number.reshape(-1, 1)).toarray()
@@ -46,7 +46,7 @@ def scale_label_columns(loaded_dataset, one_hot_using=False):
                                                                       for i in range(labels_to_binary.shape[1])])
             loaded_dataset = pd.concat([loaded_dataset, one_hot_dataset], axis=1)
 
-        information_about_transformers[column] = {'transformer-object': label_to_num_transformer}
+            information_about_transformers[column]['transformer-objects']['OneHotTransformer'] = one_hot_transformer
 
         loaded_dataset[column] = labels_number
 
@@ -63,7 +63,7 @@ def decode_numeric(loaded_dataset, columns, information):
 
 def decode_labels(loaded_dataset, columns, information):
     for column in columns:
-        binary_to_label = information[column]['transformer-object'].\
+        binary_to_label = information[column]['transformer-objects']['LabelTransformer'].\
             inverse_transform(loaded_dataset[column].values.reshape(-1, 1))
 
         loaded_dataset[column] = binary_to_label

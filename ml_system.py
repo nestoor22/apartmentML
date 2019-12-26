@@ -190,6 +190,3 @@ def train_all_models():
 
     import joblib
     joblib.dump(information_about_transformers, 'models/transformers_info')
-
-
-train_model_for_distance_to_center()
